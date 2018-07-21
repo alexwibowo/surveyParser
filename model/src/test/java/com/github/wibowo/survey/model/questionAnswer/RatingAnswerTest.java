@@ -11,16 +11,18 @@ class RatingAnswerTest {
 
     @Test
     void reject_rating_less_than_1() {
+        final RatingQuestion ratingQuestion = new RatingQuestion(Theme.Place, "I feel empowered to get the work done for which I am responsible.");
         final IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new RatingAnswer(null, 0)
+                () -> new RatingAnswer(ratingQuestion, 0)
         );
         assertThat(exception.getMessage()).isEqualTo("Rating must be between 1 and 5.");
     }
 
     @Test
     void reject_rating_greater_than_5() {
+        final RatingQuestion ratingQuestion = new RatingQuestion(Theme.Place, "I feel empowered to get the work done for which I am responsible.");
         final IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new RatingAnswer(null, 6)
+                () -> new RatingAnswer(ratingQuestion, 6)
         );
         assertThat(exception.getMessage()).isEqualTo("Rating must be between 1 and 5.");
     }
