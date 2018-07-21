@@ -1,0 +1,76 @@
+description = "Survey Parser"
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+        mavenLocal()
+    }
+
+}
+
+subprojects {
+    apply plugin: 'java'
+	apply plugin: 'idea'
+
+    idea {
+        module {
+            downloadSources = true
+        }
+    }
+
+    dependencies {
+
+        testCompile "org.assertj:assertj-core:${assertjVersion}"
+        testCompile "org.junit.jupiter:junit-jupiter-api:${junitJupiterEngineVersion}"
+        testCompile "org.junit.jupiter:junit-jupiter-engine:${junitJupiterEngineVersion}"
+
+        // 	The junit-vintage-engine dependency adds support for unit tests that use JUnit 4 or JUnit 3.
+        testCompile "org.junit.vintage:junit-vintage-engine:${junitVintageEngineVersion}"
+
+        // The junit-platform-launcher dependency provides a public API for configuring and launching tests. This API is typically used by IDEs and build tools.
+        testCompile "org.junit.platform:junit-platform-launcher:${junitPlatformVersion}"
+
+        // The junit-platform-runner dependency allows us to run tests and test suites in a JUnit 4 environment.
+        testCompile "org.junit.platform:junit-platform-runner:${junitPlatformVersion}"
+
+
+
+    }
+
+
+
+    test {
+        useJUnitPlatform()
+    }
+
+}
+
+
+plugins.withType(JavaPlugin) {
+    task testJar(type: Jar) {
+        classifier "test"
+        from sourceSets.test.output
+    }
+
+    /** Produces sources JAR */
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    /** Produces javadoc JAR */
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from javadoc.destinationDir
+    }
+
+    artifacts {
+        archives sourcesJar
+        archives javadocJar
+    }
+}
+
+
+
+
