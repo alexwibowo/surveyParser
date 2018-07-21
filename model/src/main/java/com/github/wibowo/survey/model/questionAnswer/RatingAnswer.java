@@ -18,4 +18,13 @@ public final class RatingAnswer extends BaseAnswer<RatingQuestion> {
     public int rating() {
         return rating;
     }
+
+
+    @Override
+    public String toString() {
+        return "RatingAnswer{" +
+                "question=" + question +
+                ", rating=" + rating +
+                '}';
+    }
 }
