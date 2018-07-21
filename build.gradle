@@ -19,11 +19,18 @@ subprojects {
         }
     }
 
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
     dependencies {
+        compile group: 'org.jetbrains', name: 'annotations', version: "${jetbrainsAnnotationsVersion}"
 
         testCompile "org.assertj:assertj-core:${assertjVersion}"
         testCompile "org.junit.jupiter:junit-jupiter-api:${junitJupiterEngineVersion}"
         testCompile "org.junit.jupiter:junit-jupiter-engine:${junitJupiterEngineVersion}"
+        testCompile "org.junit.jupiter:junit-jupiter-params:${junitJupiterEngineVersion}"
 
         // 	The junit-vintage-engine dependency adds support for unit tests that use JUnit 4 or JUnit 3.
         testCompile "org.junit.vintage:junit-vintage-engine:${junitVintageEngineVersion}"
@@ -33,12 +40,7 @@ subprojects {
 
         // The junit-platform-runner dependency allows us to run tests and test suites in a JUnit 4 environment.
         testCompile "org.junit.platform:junit-platform-runner:${junitPlatformVersion}"
-
-
-
     }
-
-
 
     test {
         useJUnitPlatform()
