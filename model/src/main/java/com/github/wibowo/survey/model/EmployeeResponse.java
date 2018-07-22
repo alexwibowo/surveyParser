@@ -5,7 +5,7 @@ import com.github.wibowo.survey.model.questionAnswer.Question;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -13,37 +13,40 @@ import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
-public final class SurveyResponse {
+/**
+ * Encapsulates response of single employee to all the questions in a survey.
+ */
+public final class EmployeeResponse {
 
     private final Survey survey;
 
     private final Employee employee;
 
-    private final @Nullable LocalDateTime submittedAt;
+    private final @Nullable ZonedDateTime submittedAt;
 
     private final Map<Question, Answer> answers;
 
-    private SurveyResponse(final Survey survey,
-                          final Employee employee,
-                          final @Nullable LocalDateTime submittedAt) {
+    private EmployeeResponse(final Survey survey,
+                             final Employee employee,
+                             final @Nullable ZonedDateTime submittedAt) {
         this.survey = requireNonNull(survey);
         this.employee = requireNonNull(employee);
         this.submittedAt = submittedAt;
         this.answers = new HashMap<>();
     }
 
-    public static SurveyResponse submittedResponse(final Survey survey,
-                                                   final Employee employee,
-                                                   final LocalDateTime submittedAt) {
-        return new SurveyResponse(survey, employee, submittedAt);
+    public static EmployeeResponse submittedResponse(final Survey survey,
+                                                     final Employee employee,
+                                                     final ZonedDateTime submittedAt) {
+        return new EmployeeResponse(survey, employee, submittedAt);
     }
 
-    public static SurveyResponse unsubmittedResponse(final Survey survey,
-                                                     final Employee employee) {
-        return new SurveyResponse(survey, employee, null);
+    public static EmployeeResponse unsubmittedResponse(final Survey survey,
+                                                       final Employee employee) {
+        return new EmployeeResponse(survey, employee, null);
     }
 
-    public SurveyResponse addAnswer(final @NotNull Answer answer) {
+    public EmployeeResponse addAnswer(final @NotNull Answer answer) {
         Objects.requireNonNull(answer);
         answers.put(answer.question(), answer);
         return this;
@@ -65,7 +68,7 @@ public final class SurveyResponse {
         return employee;
     }
 
-    public Optional<LocalDateTime> submittedAt() {
+    public Optional<ZonedDateTime> submittedAt() {
         return Optional.ofNullable(submittedAt);
     }
 }

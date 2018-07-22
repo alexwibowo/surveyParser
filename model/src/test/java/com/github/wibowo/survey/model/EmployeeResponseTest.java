@@ -4,11 +4,11 @@ import com.github.wibowo.survey.model.questionAnswer.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class SurveyResponseTest {
+class EmployeeResponseTest {
 
     private RatingQuestion likeMyWorkQuestion;
     private RatingQuestion workplaceIsConvenientQuestion;
@@ -31,8 +31,8 @@ class SurveyResponseTest {
 
     @Test
     void test_create() {
-        final LocalDateTime submittedAt = LocalDateTime.now().minusWeeks(5);
-        final SurveyResponse response = SurveyResponse.submittedResponse(survey, employee, submittedAt);
+        final ZonedDateTime submittedAt = ZonedDateTime.now().minusWeeks(5);
+        final EmployeeResponse response = EmployeeResponse.submittedResponse(survey, employee, submittedAt);
 
         assertThat(response.survey()).isSameAs(survey);
         assertThat(response.employee().id()).isEqualTo("alex");
@@ -43,18 +43,18 @@ class SurveyResponseTest {
 
     @Test
     void survey_submission_is_optional() {
-        final SurveyResponse response = SurveyResponse.unsubmittedResponse(survey, employee);
+        final EmployeeResponse response = EmployeeResponse.unsubmittedResponse(survey, employee);
         assertThat(response.submittedAt().isPresent()).isFalse();
     }
 
     @Test
     void test_survey_with_answers() {
-        final LocalDateTime submittedAt = LocalDateTime.now().minusWeeks(5);
+        final ZonedDateTime submittedAt = ZonedDateTime.now().minusWeeks(5);
         final SingleSelectAnswer managerAnswer = new SingleSelectAnswer(managerQuestion, "Bruce Lee");
         final SingleSelectAnswer cityAnswer = new SingleSelectAnswer(cityQuestion, "Little China");
         final RatingAnswer likeMyWorkAnswer = new RatingAnswer(likeMyWorkQuestion, 5);
 
-        final SurveyResponse response = SurveyResponse.submittedResponse(survey, employee, submittedAt)
+        final EmployeeResponse response = EmployeeResponse.submittedResponse(survey, employee, submittedAt)
                 .addAnswer(managerAnswer)
                 .addAnswer(cityAnswer)
                 .addAnswer(likeMyWorkAnswer);
@@ -69,10 +69,10 @@ class SurveyResponseTest {
 
     @Test
     void answer_to_a_question_is_not_mandatory() {
-        final LocalDateTime submittedAt = LocalDateTime.now().minusWeeks(5);
+        final ZonedDateTime submittedAt = ZonedDateTime.now().minusWeeks(5);
         final SingleSelectAnswer managerAnswer = new SingleSelectAnswer(managerQuestion, "Bruce Lee");
 
-        final SurveyResponse response = SurveyResponse.submittedResponse(survey, employee, submittedAt)
+        final EmployeeResponse response = EmployeeResponse.submittedResponse(survey, employee, submittedAt)
                 .addAnswer(managerAnswer);
 
         assertThat(response.answerFor(managerQuestion).isPresent()).isTrue();
