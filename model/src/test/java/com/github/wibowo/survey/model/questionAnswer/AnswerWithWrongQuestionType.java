@@ -10,4 +10,8 @@ public final class AnswerWithWrongQuestionType extends BaseAnswer<RatingQuestion
     }
 
 
+    @Override
+    public boolean isNull() {
+        return false;
+    }
 }

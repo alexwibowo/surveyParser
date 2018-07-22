@@ -13,7 +13,7 @@ class SingleSelectAnswerTest {
     @Test
     void must_be_constructed_with_singleSelectQuestion() {
         final NullPointerException exception = Assertions.assertThrows(NullPointerException.class,
-                () -> new SingleSelectAnswer(null, "Mr. Burns")
+                () -> SingleSelectAnswer.createAnswer(null, "Mr. Burns")
         );
         assertThat(exception.getMessage()).isEqualTo("Answer must be constructed with a question.");
     }
@@ -22,9 +22,17 @@ class SingleSelectAnswerTest {
     @ValueSource(strings = {"Sally", "John"})
     void construction_of_valid_answer(String answerValue) {
         final SingleSelectQuestion question = new SingleSelectQuestion(Theme.Place, "Who is your manager?");
-        final SingleSelectAnswer answer = new SingleSelectAnswer(question, answerValue);
+        final SingleSelectAnswer answer =  SingleSelectAnswer.createAnswer(question, answerValue);
 
         assertThat(answer.question()).isSameAs(question);
         assertThat(answer.selection()).isSameAs(answerValue);
+        assertFalse(answer.isNull());
+    }
+
+    @Test
+    void null_answer() {
+        final SingleSelectQuestion question = new SingleSelectQuestion(Theme.Place, "Who is your manager?");
+        final SingleSelectAnswer answer =  SingleSelectAnswer.nullAnswer(question);
+        assertTrue(answer.isNull());
     }
 }

@@ -13,24 +13,24 @@ class RatingAnswerTest {
     void reject_rating_less_than_1() {
         final RatingQuestion ratingQuestion = new RatingQuestion(Theme.Place, "I feel empowered to get the work done for which I am responsible.");
         final IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new RatingAnswer(ratingQuestion, 0)
+                () -> RatingAnswer.createAnswer(ratingQuestion, 0)
         );
-        assertThat(exception.getMessage()).isEqualTo("Rating must be between 1 and 5.");
+        assertThat(exception.getMessage()).isEqualTo("0 is an invalid rating value. Rating must be between 1 and 5.");
     }
 
     @Test
     void reject_rating_greater_than_5() {
         final RatingQuestion ratingQuestion = new RatingQuestion(Theme.Place, "I feel empowered to get the work done for which I am responsible.");
         final IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new RatingAnswer(ratingQuestion, 6)
+                () -> RatingAnswer.createAnswer(ratingQuestion, 6)
         );
-        assertThat(exception.getMessage()).isEqualTo("Rating must be between 1 and 5.");
+        assertThat(exception.getMessage()).isEqualTo("6 is an invalid rating value. Rating must be between 1 and 5.");
     }
 
     @Test
     void must_be_constructed_with_ratingQuestion() {
         final NullPointerException exception = Assertions.assertThrows(NullPointerException.class,
-                () -> new RatingAnswer(null, 1)
+                () -> RatingAnswer.createAnswer(null, 1)
         );
         assertThat(exception.getMessage()).isEqualTo("Answer must be constructed with a question.");
     }
@@ -39,10 +39,18 @@ class RatingAnswerTest {
     @ValueSource(ints = {1, 2, 3, 4, 5})
     void accept_rating_between_1_and_5(int ratingValue) {
         final RatingQuestion ratingQuestion = new RatingQuestion(Theme.Place, "I feel empowered to get the work done for which I am responsible.");
-        final RatingAnswer answer = new RatingAnswer(ratingQuestion, ratingValue);
+        final RatingAnswer answer = RatingAnswer.createAnswer(ratingQuestion, ratingValue);
 
         assertThat(answer.question()).isSameAs(ratingQuestion);
         assertThat(answer.rating()).isEqualTo(ratingValue);
+        assertThat(answer.isNull()).isFalse();
+    }
+
+    @Test
+    void test_null_answer() {
+        final RatingQuestion ratingQuestion = new RatingQuestion(Theme.Place, "I feel empowered to get the work done for which I am responsible.");
+        final RatingAnswer nullAnswer = RatingAnswer.nullAnswer(ratingQuestion);
+        assertThat(nullAnswer.isNull()).isTrue();
     }
 
 }
