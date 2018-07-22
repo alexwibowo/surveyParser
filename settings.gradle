@@ -9,4 +9,4 @@
 
 rootProject.name = 'surveyParser'
 
-include "model","io"
+include "model","io","application"
