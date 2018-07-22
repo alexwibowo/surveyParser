@@ -24,10 +24,10 @@ public final class Survey {
 
     public Question questionNumber(final int index) {
         if (index < 0) {
-            throw new IllegalArgumentException("Question index must be >= 0");
+            throw new IllegalArgumentException("Question index starts from 0");
         }
 
-        if (index > questions.size()) {
+        if (index > questions.size() - 1) {
             throw new IllegalArgumentException(String.format("Attempt to ask for question [%d]. But there are only [%d] questions available: %s",
                     index, questions.size(), questions)
             );
@@ -35,4 +35,10 @@ public final class Survey {
         return questions.get(index);
     }
 
+    @Override
+    public String toString() {
+        return "Survey{" +
+                "questions=" + questions +
+                '}';
+    }
 }

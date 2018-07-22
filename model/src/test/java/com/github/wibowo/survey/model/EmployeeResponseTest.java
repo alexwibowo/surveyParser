@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import java.time.ZonedDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EmployeeResponseTest {
 
@@ -37,48 +39,44 @@ class EmployeeResponseTest {
         assertThat(response.survey()).isSameAs(survey);
         assertThat(response.employee().id()).isEqualTo("alex");
         assertThat(response.employee().email()).isEqualTo("alex@gmail.com");
-        assertThat(response.submittedAt().isPresent()).isTrue();
+        assertTrue(response.wasSubmitted());
         assertThat(response.submittedAt().get()).isEqualTo(submittedAt);
     }
 
     @Test
     void survey_submission_is_optional() {
         final EmployeeResponse response = EmployeeResponse.unsubmittedResponse(survey, employee);
-        assertThat(response.submittedAt().isPresent()).isFalse();
+        assertFalse(response.wasSubmitted());
     }
 
     @Test
     void test_survey_with_answers() {
         final ZonedDateTime submittedAt = ZonedDateTime.now().minusWeeks(5);
-        final SingleSelectAnswer managerAnswer = new SingleSelectAnswer(managerQuestion, "Bruce Lee");
-        final SingleSelectAnswer cityAnswer = new SingleSelectAnswer(cityQuestion, "Little China");
-        final RatingAnswer likeMyWorkAnswer = new RatingAnswer(likeMyWorkQuestion, 5);
+        final SingleSelectAnswer managerAnswer = SingleSelectAnswer.createAnswer(managerQuestion, "Bruce Lee");
+        final SingleSelectAnswer cityAnswer = SingleSelectAnswer.createAnswer(cityQuestion, "Little China");
+        final RatingAnswer likeMyWorkAnswer = RatingAnswer.createAnswer(likeMyWorkQuestion, 5);
 
         final EmployeeResponse response = EmployeeResponse.submittedResponse(survey, employee, submittedAt)
                 .addAnswer(managerAnswer)
                 .addAnswer(cityAnswer)
                 .addAnswer(likeMyWorkAnswer);
 
-        assertThat(response.answerFor(managerQuestion).isPresent()).isTrue();
-        assertThat(response.answerFor(managerQuestion).get().selection()).isEqualTo("Bruce Lee");
-        assertThat(response.answerFor(cityQuestion).isPresent()).isTrue();
-        assertThat(response.answerFor(cityQuestion).get().selection()).isEqualTo("Little China");
-        assertThat(response.answerFor(likeMyWorkQuestion).isPresent()).isTrue();
-        assertThat(response.answerFor(likeMyWorkQuestion).get().rating()).isEqualTo(5);
+        assertThat(response.answerFor(managerQuestion).selection()).isEqualTo("Bruce Lee");
+        assertThat(response.answerFor(cityQuestion).selection()).isEqualTo("Little China");
+        assertThat(response.answerFor(likeMyWorkQuestion).rating()).isEqualTo(5);
     }
 
     @Test
     void answer_to_a_question_is_not_mandatory() {
         final ZonedDateTime submittedAt = ZonedDateTime.now().minusWeeks(5);
-        final SingleSelectAnswer managerAnswer = new SingleSelectAnswer(managerQuestion, "Bruce Lee");
+        final SingleSelectAnswer managerAnswer = SingleSelectAnswer.createAnswer(managerQuestion, "Bruce Lee");
 
         final EmployeeResponse response = EmployeeResponse.submittedResponse(survey, employee, submittedAt)
                 .addAnswer(managerAnswer);
 
-        assertThat(response.answerFor(managerQuestion).isPresent()).isTrue();
-        assertThat(response.answerFor(cityQuestion).isPresent()).isFalse();
-        assertThat(response.answerFor(likeMyWorkQuestion).isPresent()).isFalse();
-        assertThat(response.answerFor(workplaceIsConvenientQuestion).isPresent()).isFalse();
-
+        assertThat(response.answerFor(managerQuestion).isNull()).isFalse();
+        assertThat(response.answerFor(cityQuestion).isNull()).isTrue();
+        assertThat(response.answerFor(likeMyWorkQuestion).isNull()).isTrue();
+        assertTrue(response.answerFor(workplaceIsConvenientQuestion).isNull());
     }
 }

@@ -52,12 +52,17 @@ public final class EmployeeResponse {
         return this;
     }
 
-    public <E extends Answer> Optional<E> answerFor(final @NotNull Question<E> question) {
+    public <E extends Answer> E answerFor(final @NotNull Question<E> question) {
         Objects.requireNonNull(question);
 
         // we expect the question and the answer are synced. So it is ok to cast here.
         //noinspection unchecked
-        return Optional.ofNullable((E)answers.get(question));
+        final E answer = (E) answers.get(question);
+        if (answer != null) {
+            return answer;
+        } else {
+            return question.nullAnswer();
+        }
     }
 
     public Survey survey() {
@@ -70,5 +75,9 @@ public final class EmployeeResponse {
 
     public Optional<ZonedDateTime> submittedAt() {
         return Optional.ofNullable(submittedAt);
+    }
+
+    public boolean wasSubmitted() {
+        return submittedAt != null;
     }
 }

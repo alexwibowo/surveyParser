@@ -6,6 +6,8 @@ import com.github.wibowo.survey.model.questionAnswer.RatingQuestion;
 import com.github.wibowo.survey.model.questionAnswer.SingleSelectQuestion;
 import com.github.wibowo.survey.model.questionAnswer.Theme;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -16,108 +18,196 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CsvSurveyResponseReaderTest {
 
     private static DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssZZZ");
+    private Survey survey1;
+    private RatingQuestion iLikeMyWork;
+    private RatingQuestion iHaveResourcesToDoMyWork;
+    private RatingQuestion iFeelEmpowered;
+    private SingleSelectQuestion whoIsMyManager;
+    private Survey survey2;
+
+    @BeforeEach
+    void setUp() {
+        iLikeMyWork = new RatingQuestion(Theme.Work, "I like the kind of work I do.");
+        iHaveResourcesToDoMyWork = new RatingQuestion(Theme.Work, "In general, I have the resources (e.g., business tools, information, facilities, IT or functional support) I need to be effective.");
+        iFeelEmpowered = new RatingQuestion(Theme.Place, "I feel empowered to get the work done for which I am responsible.");
+        whoIsMyManager = new SingleSelectQuestion(Theme.Demographic, "Manager");
+
+        survey1 = new Survey()
+                .addQuestion(iLikeMyWork)
+                .addQuestion(iHaveResourcesToDoMyWork)
+                .addQuestion(iFeelEmpowered);
+
+        survey2 = new Survey()
+                .addQuestion(iLikeMyWork)
+                .addQuestion(iHaveResourcesToDoMyWork)
+                .addQuestion(whoIsMyManager);
+    }
 
     @Test
-    void same_employee_can_submit_response_multiple_time() {
-        throw new RuntimeException("Not implemented yet");
+    void bad_answer_should_be_skipped() {
+        final String[] rows = new String[]{
+                "employee1@abc.xyz,1,2014-07-28T20:35:41+00:00,5,4,John",
+                "employee2@abc.xyz,2,2014-07-30T23:35:41+10:00,5,5,3"
+        };
+
+        final List<EmployeeResponse> employeeSurveyResponse = new CsvSurveyResponseReader().readFrom(inputFrom(rows), survey1);
+        assertThat(employeeSurveyResponse).hasSize(2);
+
+        final EmployeeResponse firstResponse = employeeSurveyResponse.get(0);
+        verifyGenericAnswer(firstResponse, "1", "employee1@abc.xyz", "2014-07-28 20:35:41+0000");
+        assertThat(firstResponse.answerFor(iLikeMyWork).rating()).isEqualTo(5);
+        assertThat(firstResponse.answerFor(iHaveResourcesToDoMyWork).rating()).isEqualTo(4);
+        assertTrue(firstResponse.answerFor(iFeelEmpowered).isNull());
+
+        final EmployeeResponse secondResponse = employeeSurveyResponse.get(1);
+        verifyGenericAnswer(secondResponse, "2", "employee2@abc.xyz", "2014-07-30 23:35:41+1000");
+        assertThat(secondResponse.answerFor(iLikeMyWork).rating()).isEqualTo(5);
+        assertThat(secondResponse.answerFor(iHaveResourcesToDoMyWork).rating()).isEqualTo(5);
+        assertThat(secondResponse.answerFor(iFeelEmpowered).rating()).isEqualTo(3);
     }
 
     @Test
     void email_can_be_omitted() {
-        throw new RuntimeException("Not implemented yet");
+        final String[] rows = new String[]{
+                ",1,2014-07-28T20:35:41+00:00,5,4,3"
+        };
+
+        final List<EmployeeResponse> employeeSurveyResponse = new CsvSurveyResponseReader().readFrom(inputFrom(rows), survey1);
+        assertThat(employeeSurveyResponse).hasSize(1);
+        verifyGenericAnswer(employeeSurveyResponse.get(0), "1", "", "2014-07-28 20:35:41+0000");
+    }
+
+    @Test
+    void employeeId_can_be_omitted() {
+        final String[] rows = new String[]{
+                "employee1@abc.xyz,,2014-07-28T20:35:41+00:00,5,4,3"
+        };
+
+        final List<EmployeeResponse> employeeSurveyResponse = new CsvSurveyResponseReader().readFrom(inputFrom(rows), survey1);
+        assertThat(employeeSurveyResponse).hasSize(1);
+
+        verifyGenericAnswer(employeeSurveyResponse.get(0), "", "employee1@abc.xyz", "2014-07-28 20:35:41+0000");
+    }
+
+    @Test
+    void submissionDate_can_be_omitted_which_means_survey_was_not_submitted() {
+        final String[] rows = new String[]{
+                "employee1@abc.xyz,1,,5,4,3"
+        };
+
+        final List<EmployeeResponse> employeeSurveyResponse = new CsvSurveyResponseReader().readFrom(inputFrom(rows), survey1);
+        assertThat(employeeSurveyResponse).hasSize(1);
+
+        verifyGenericAnswer(employeeSurveyResponse.get(0), "1", "employee1@abc.xyz", null);
     }
 
     @Test
     void answer_to_question_is_optional() {
-        throw new RuntimeException("Not implemented yet");
+        final String[] rows = new String[]{
+                "employee1@abc.xyz,1,2014-07-28T20:35:41+00:00,5,4,"
+        };
+
+        final List<EmployeeResponse> employeeSurveyResponse = new CsvSurveyResponseReader().readFrom(inputFrom(rows), survey1);
+        assertThat(employeeSurveyResponse).hasSize(1);
+
+        final EmployeeResponse response = employeeSurveyResponse.get(0);
+        verifyGenericAnswer(response, "1", "employee1@abc.xyz", "2014-07-28 20:35:41+0000");
+        assertThat(response.answerFor(iLikeMyWork).rating()).isEqualTo(5);
+        assertThat(response.answerFor(iHaveResourcesToDoMyWork).rating()).isEqualTo(4);
+        assertTrue(response.answerFor(iFeelEmpowered).isNull());
     }
 
 
     @Test
     void reading_response_with_one_employee() {
-        final RatingQuestion question1 = new RatingQuestion(Theme.Work, "I like the kind of work I do.");
-        final RatingQuestion question2 = new RatingQuestion(Theme.Work, "In general, I have the resources (e.g., business tools, information, facilities, IT or functional support) I need to be effective.");
-        final RatingQuestion question3 = new RatingQuestion(Theme.Place, "I feel empowered to get the work done for which I am responsible.");
-        final Survey survey = new Survey()
-                .addQuestion(question1)
-                .addQuestion(question2)
-                .addQuestion(question3);
-
         final String[] rows = new String[]{
                 "employee1@abc.xyz,1,2014-07-28T20:35:41+00:00,5,4,3"
         };
 
-        final List<EmployeeResponse> employeeSurveyRespons = new CsvSurveyResponseReader().readFrom(inputFrom(rows), survey);
-        assertThat(employeeSurveyRespons).hasSize(1);
+        final List<EmployeeResponse> employeeSurveyResponse = new CsvSurveyResponseReader().readFrom(inputFrom(rows), survey1);
+        assertThat(employeeSurveyResponse).hasSize(1);
 
-        final EmployeeResponse employeeResponse = employeeSurveyRespons.get(0);
-        assertThat(employeeResponse.employee().id()).isEqualTo("1");
-        assertThat(employeeResponse.employee().email()).isEqualTo("employee1@abc.xyz");
-        assertThat(employeeResponse.submittedAt().isPresent());
-        assertThat(employeeResponse.submittedAt().get().format(dateFormatter)).isEqualTo("2014-07-28 20:35:41+0000");
-
-        assertTrue(employeeResponse.answerFor(question1).isPresent());
-        assertThat(employeeResponse.answerFor(question1).get().rating()).isEqualTo(5);
-
-        assertTrue(employeeResponse.answerFor(question2).isPresent());
-        assertThat(employeeResponse.answerFor(question2).get().rating()).isEqualTo(4);
-
-        assertTrue(employeeResponse.answerFor(question3).isPresent());
-        assertThat(employeeResponse.answerFor(question3).get().rating()).isEqualTo(3);
+        final EmployeeResponse response = employeeSurveyResponse.get(0);
+        verifyGenericAnswer(response, "1", "employee1@abc.xyz", "2014-07-28 20:35:41+0000");
+        assertThat(response.answerFor(iLikeMyWork).rating()).isEqualTo(5);
+        assertThat(response.answerFor(iHaveResourcesToDoMyWork).rating()).isEqualTo(4);
+        assertThat(response.answerFor(iFeelEmpowered).rating()).isEqualTo(3);
     }
 
     @Test
     void reading_response_with_multiple_employee() {
-        final RatingQuestion question1 = new RatingQuestion(Theme.Work, "I like the kind of work I do.");
-        final RatingQuestion question2 = new RatingQuestion(Theme.Work, "In general, I have the resources (e.g., business tools, information, facilities, IT or functional support) I need to be effective.");
-        final SingleSelectQuestion question3 = new SingleSelectQuestion(Theme.Demographic, "Manager");
-        final Survey survey = new Survey()
-                .addQuestion(question1)
-                .addQuestion(question2)
-                .addQuestion(question3);
-
         final String[] rows = new String[]{
                 "employee1@abc.xyz,1,2014-07-28T20:35:41+00:00,5,4,John",
                 "employee2@abc.xyz,2,2014-07-30T23:35:41+10:00,3,1,Sally"
         };
 
-        final List<EmployeeResponse> employeeSurveyRespons = new CsvSurveyResponseReader().readFrom(inputFrom(rows), survey);
-        assertThat(employeeSurveyRespons).hasSize(2);
+        final List<EmployeeResponse> employeeSurveyResponse = new CsvSurveyResponseReader().readFrom(inputFrom(rows), survey2);
+        assertThat(employeeSurveyResponse).hasSize(2);
 
-        final EmployeeResponse firstEmployeeResponse = employeeSurveyRespons.get(0);
-        assertThat(firstEmployeeResponse.employee().id()).isEqualTo("1");
-        assertThat(firstEmployeeResponse.employee().email()).isEqualTo("employee1@abc.xyz");
-        assertThat(firstEmployeeResponse.submittedAt().isPresent());
-        assertThat(firstEmployeeResponse.submittedAt().get().format(dateFormatter)).isEqualTo("2014-07-28 20:35:41 +0000");
+        final EmployeeResponse firstResponse = employeeSurveyResponse.get(0);
+        verifyGenericAnswer(firstResponse, "1", "employee1@abc.xyz", "2014-07-28 20:35:41+0000");
+        assertThat(firstResponse.answerFor(iLikeMyWork).rating()).isEqualTo(5);
+        assertThat(firstResponse.answerFor(iHaveResourcesToDoMyWork).rating()).isEqualTo(4);
+        assertThat(firstResponse.answerFor(whoIsMyManager).selection()).isEqualTo("John");
 
-        assertTrue(firstEmployeeResponse.answerFor(question1).isPresent());
-        assertThat(firstEmployeeResponse.answerFor(question1).get().rating()).isEqualTo(5);
+        final EmployeeResponse secondResponse = employeeSurveyResponse.get(1);
+        verifyGenericAnswer(secondResponse, "2", "employee2@abc.xyz", "2014-07-30 23:35:41+1000");
+        assertThat(secondResponse.answerFor(iLikeMyWork).rating()).isEqualTo(3);
+        assertThat(secondResponse.answerFor(iHaveResourcesToDoMyWork).rating()).isEqualTo(1);
+        assertThat(secondResponse.answerFor(whoIsMyManager).selection()).isEqualTo("Sally");
+    }
 
-        assertTrue(firstEmployeeResponse.answerFor(question2).isPresent());
-        assertThat(firstEmployeeResponse.answerFor(question2).get().rating()).isEqualTo(4);
+    @Test
+    void same_employee_can_submit_response_multiple_time() {
+        final String[] rows = new String[]{
+                "employee1@abc.xyz,1,2014-07-28T20:35:41+00:00,5,4,John",
+                "employee1@abc.xyz,1,2014-07-30T23:35:41+10:00,5,5,Sally",
+                "employee1@abc.xyz,1,2014-08-04T23:35:41+10:00,5,,Sally"
+        };
 
-        assertTrue(firstEmployeeResponse.answerFor(question3).isPresent());
-        assertThat(firstEmployeeResponse.answerFor(question3).get().selection()).isEqualTo("John");
+        final List<EmployeeResponse> employeeSurveyResponse = new CsvSurveyResponseReader().readFrom(inputFrom(rows), survey2);
+        assertThat(employeeSurveyResponse).hasSize(3);
 
-        final EmployeeResponse secondEmployee = employeeSurveyRespons.get(1);
-        assertThat(secondEmployee.employee().id()).isEqualTo("1");
-        assertThat(secondEmployee.employee().email()).isEqualTo("employee2@abc.xyz");
-        assertThat(secondEmployee.submittedAt().isPresent());
-        assertThat(secondEmployee.submittedAt().get().format(dateFormatter)).isEqualTo("2014-07-30 23:35:41 +1000");
+        final EmployeeResponse firstResponse = employeeSurveyResponse.get(0);
+        verifyGenericAnswer(firstResponse, "1", "employee1@abc.xyz", "2014-07-28 20:35:41+0000");
+        assertThat(firstResponse.answerFor(iLikeMyWork).rating()).isEqualTo(5);
+        assertThat(firstResponse.answerFor(iHaveResourcesToDoMyWork).rating()).isEqualTo(4);
+        assertThat(firstResponse.answerFor(whoIsMyManager).selection()).isEqualTo("John");
 
-        assertTrue(secondEmployee.answerFor(question1).isPresent());
-        assertThat(secondEmployee.answerFor(question1).get().rating()).isEqualTo(3);
+        final EmployeeResponse secondResponse = employeeSurveyResponse.get(1);
+        verifyGenericAnswer(secondResponse, "1", "employee1@abc.xyz", "2014-07-30 23:35:41+1000");
+        assertThat(secondResponse.answerFor(iLikeMyWork).rating()).isEqualTo(5);
+        assertThat(secondResponse.answerFor(iHaveResourcesToDoMyWork).rating()).isEqualTo(5);
+        assertThat(secondResponse.answerFor(whoIsMyManager).selection()).isEqualTo("Sally");
 
-        assertTrue(secondEmployee.answerFor(question2).isPresent());
-        assertThat(secondEmployee.answerFor(question2).get().rating()).isEqualTo(1);
+        final EmployeeResponse thirdResponse = employeeSurveyResponse.get(2);
+        verifyGenericAnswer(thirdResponse, "1", "employee1@abc.xyz", "2014-08-04 23:35:41+1000");
+        assertThat(thirdResponse.answerFor(iLikeMyWork).rating()).isEqualTo(5);
+        assertTrue(thirdResponse.answerFor(iHaveResourcesToDoMyWork).isNull());
+        assertThat(thirdResponse.answerFor(whoIsMyManager).selection()).isEqualTo("Sally");
+    }
 
-        assertTrue(secondEmployee.answerFor(question3).isPresent());
-        assertThat(secondEmployee.answerFor(question3).get().selection()).isEqualTo("Sally");
+    private void verifyGenericAnswer(final EmployeeResponse response,
+                                     final String expectedEmployeeId,
+                                     final String expectedEmployeeEmail,
+                                     final @Nullable String expectedSubmissionDateTime) {
+        assertThat(response.employee().id()).isEqualTo(expectedEmployeeId);
+        assertThat(response.employee().email()).isEqualTo(expectedEmployeeEmail);
+
+        if (expectedSubmissionDateTime != null) {
+            assertTrue(response.wasSubmitted());
+            assertTrue(response.submittedAt().isPresent());
+            assertThat(response.submittedAt().get().format(dateFormatter)).isEqualTo(expectedSubmissionDateTime);
+        } else {
+            assertFalse(response.wasSubmitted());
+            assertFalse(response.submittedAt().isPresent());
+        }
     }
 
 

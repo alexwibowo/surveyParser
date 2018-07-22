@@ -2,10 +2,12 @@ package com.github.wibowo.survey.io.csv;
 
 import com.github.wibowo.survey.io.SurveyResponseReader;
 import com.github.wibowo.survey.model.Employee;
+import com.github.wibowo.survey.model.EmployeeResponse;
 import com.github.wibowo.survey.model.Survey;
 import com.github.wibowo.survey.model.SurveyException;
-import com.github.wibowo.survey.model.EmployeeResponse;
 import com.github.wibowo.survey.model.questionAnswer.Question;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
@@ -18,6 +20,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public final class CsvSurveyResponseReader implements SurveyResponseReader<InputStream> {
+    private static final Logger LOGGER = LogManager.getLogger(CsvSurveyResponseReader.class);
 
     private final String COMMA_SEPARATED_SPLITTER = "\\s*,\\s*";
 
@@ -28,6 +31,7 @@ public final class CsvSurveyResponseReader implements SurveyResponseReader<Input
     public List<EmployeeResponse> readFrom(final InputStream source,
                                            final Survey survey) {
         Objects.requireNonNull(survey);
+        LOGGER.info("Reading answer for survey [{}]", survey);
 
         try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(source))) {
             return bufferedReader.lines()
@@ -64,12 +68,11 @@ public final class CsvSurveyResponseReader implements SurveyResponseReader<Input
 
         if (values.length > 3) {
             for (int questionOffset = 3; questionOffset < values.length; questionOffset++) {
-                final String questionAnswer = values[questionOffset];
                 final int questionIndex = questionOffset - 3;
-
                 final Question originalQuestion = survey.questionNumber(questionIndex);
-                final Class aClass = originalQuestion.answerType();
+                final String questionAnswer = values[questionOffset];
 
+                employeeResponse.addAnswer(originalQuestion.createAnswerFrom(questionAnswer));
             }
         }
 
