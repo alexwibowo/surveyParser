@@ -1,6 +1,9 @@
 package com.github.wibowo.survey.model.questionAnswer;
 
+import com.github.wibowo.survey.model.SurveyException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 
 import java.util.Arrays;
@@ -10,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class QuestionFactoryTest {
 
-   @TestFactory
+    @TestFactory
     Stream<DynamicTest> creation_of_RatingQuestion() {
         return Arrays.stream(Theme.values())
                 .map(theme -> DynamicTest.dynamicTest(
@@ -36,6 +39,22 @@ class QuestionFactoryTest {
                             assertThat(ratingquestion.sentence()).isEqualTo("comptine d'un autre été");
                         }
                 ));
+    }
+
+    @Test
+    void fail_on_attempt_to_create_unsupported_questionType() {
+        final SurveyException exception = Assertions.assertThrows(SurveyException.class,
+                () -> QuestionFactory.createFrom(Theme.Work, "someunknowntype", "una mattina")
+        );
+        assertThat(exception.getMessage()).isEqualTo("Unsupported question [someunknowntype]");
+    }
+
+    @Test
+    void question_type_cant_be_null() {
+        final NullPointerException exception = Assertions.assertThrows(NullPointerException.class,
+                () -> QuestionFactory.createFrom(Theme.Work, null, "una mattina")
+        );
+        assertThat(exception.getMessage()).isEqualTo("question type must be provided");
     }
 
 
