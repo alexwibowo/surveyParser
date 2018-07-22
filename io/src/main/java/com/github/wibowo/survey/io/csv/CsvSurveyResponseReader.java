@@ -5,6 +5,7 @@ import com.github.wibowo.survey.model.Employee;
 import com.github.wibowo.survey.model.Survey;
 import com.github.wibowo.survey.model.SurveyException;
 import com.github.wibowo.survey.model.EmployeeResponse;
+import com.github.wibowo.survey.model.questionAnswer.Question;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
@@ -60,6 +61,18 @@ public final class CsvSurveyResponseReader implements SurveyResponseReader<Input
         } else {
             employeeResponse = EmployeeResponse.unsubmittedResponse(survey, employee);
         }
+
+        if (values.length > 3) {
+            for (int questionOffset = 3; questionOffset < values.length; questionOffset++) {
+                final String questionAnswer = values[questionOffset];
+                final int questionIndex = questionOffset - 3;
+
+                final Question originalQuestion = survey.questionNumber(questionIndex);
+                final Class aClass = originalQuestion.answerType();
+
+            }
+        }
+
 
         return employeeResponse;
     }

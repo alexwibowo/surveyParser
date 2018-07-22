@@ -22,4 +22,17 @@ public final class Survey {
         return questions;
     }
 
+    public Question questionNumber(final int index) {
+        if (index < 0) {
+            throw new IllegalArgumentException("Question index must be >= 0");
+        }
+
+        if (index > questions.size()) {
+            throw new IllegalArgumentException(String.format("Attempt to ask for question [%d]. But there are only [%d] questions available: %s",
+                    index, questions.size(), questions)
+            );
+        }
+        return questions.get(index);
+    }
+
 }

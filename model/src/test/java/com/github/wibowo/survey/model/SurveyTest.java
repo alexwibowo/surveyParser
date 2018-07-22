@@ -37,4 +37,9 @@ class SurveyTest {
 
     }
 
+    @Test
+    void test_get_question_by_index() {
+        throw new RuntimeException("test me");
+    }
+
 }
