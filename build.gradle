@@ -30,6 +30,10 @@ subprojects {
     dependencies {
         compile group: 'org.jetbrains', name: 'annotations', version: "${jetbrainsAnnotationsVersion}"
 
+        compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: "${log4j2Version}"
+        compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: "${log4j2Version}"
+
+
         testCompile "org.assertj:assertj-core:${assertjVersion}"
         testCompile "org.junit.jupiter:junit-jupiter-api:${junitJupiterEngineVersion}"
         testCompile "org.junit.jupiter:junit-jupiter-engine:${junitJupiterEngineVersion}"
