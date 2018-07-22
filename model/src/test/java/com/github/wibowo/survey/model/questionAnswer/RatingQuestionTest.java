@@ -3,6 +3,7 @@ package com.github.wibowo.survey.model.questionAnswer;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RatingQuestionTest {
 
@@ -16,5 +17,28 @@ class RatingQuestionTest {
         assertThat(question2.theme()).isEqualTo(Theme.Place);
         assertThat(question2.sentence()).isEqualTo("I feel empowered to get the work done for which I am responsible.");
     }
+
+    @Test
+    void test_create_answer_with_correct_value() {
+        final RatingAnswer answer = new RatingQuestion(Theme.Work, "I like the kind of work I do.")
+                .createAnswerFrom("5");
+        assertThat(answer.rating()).isEqualTo(5);
+    }
+
+    @Test
+    void create_answer_with_non_integer_results_in_null_ratingAnswer() {
+        assertTrue(new RatingQuestion(Theme.Work, "I like the kind of work I do.")
+                .createAnswerFrom("abc").isNull());
+    }
+
+    @Test
+    void create_answer_with_invalid_ratingValue_results_in_null_ratingAnswer() {
+        assertTrue(new RatingQuestion(Theme.Work, "I like the kind of work I do.")
+                .createAnswerFrom("6").isNull());
+
+        assertTrue(new RatingQuestion(Theme.Work, "I like the kind of work I do.")
+                .createAnswerFrom("-1").isNull());
+    }
+
 
 }
