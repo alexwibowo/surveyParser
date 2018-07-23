@@ -120,6 +120,8 @@ public final class CsvSurveyReader implements SurveyReader<InputStream> {
                     case "text":
                         text = columnValues[i];
                         break;
+                    default:
+                        throw new IllegalArgumentException("Unsupported column " + columnName);
                 }
             }
 
