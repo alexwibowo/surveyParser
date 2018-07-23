@@ -21,7 +21,8 @@ public final class SurveySummariser {
                 .collect(Collectors.toList());
 
         final SurveyResponseSummary surveyResponseSummary = new SurveyResponseSummary(survey);
-        surveyResponseSummary.setParticipation(submittedResponses.size() * 100 / totalResponses);
+        surveyResponseSummary.setParticipationPercentage(submittedResponses.size()  / totalResponses);
+        surveyResponseSummary.setNumberOfParticipations(submittedResponses.size());
 
         for (final Question question : survey.questions()) {
             if (question instanceof RatingQuestion) {

@@ -11,19 +11,29 @@ public final class SurveyResponseSummary {
 
     private final Map<RatingQuestion, Double> ratingAverageByQuestion;
 
-    private double participation;
+    private double participationPercentage;
+
+    private long numberOfParticipations;
 
     public SurveyResponseSummary(final Survey survey) {
         this.survey = survey;
         this.ratingAverageByQuestion = new HashMap<>();
     }
 
-    public double getParticipation() {
-        return participation;
+    public double getParticipationPercentage() {
+        return participationPercentage;
     }
 
-    public void setParticipation(double participation) {
-        this.participation = participation;
+    public void setParticipationPercentage(double participationPercentage) {
+        this.participationPercentage = participationPercentage;
+    }
+
+    public long getNumberOfParticipations() {
+        return numberOfParticipations;
+    }
+
+    public void setNumberOfParticipations(long numberOfParticipations) {
+        this.numberOfParticipations = numberOfParticipations;
     }
 
     public void addRatingQuestionAverage(final RatingQuestion ratingQuestion,

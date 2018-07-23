@@ -54,7 +54,7 @@ class SurveySummariserTest {
                 .addAnswer(RatingAnswer.createAnswer(iHaveResourcesToDoMyWork, 1))
                 .addAnswer(RatingAnswer.createAnswer(iFeelEmpowered, 2)));
         final SurveyResponseSummary summary = SurveySummariser.summarise(survey1, employeeResponses);
-        assertThat(summary.getParticipation()).isEqualTo(100.0);
+        assertThat(summary.getParticipationPercentage()).isEqualTo(1.0);
         assertThat(summary.averageRatingFor(iLikeMyWork)).isEqualTo( (double) (5 + 4 + 1) / 3 );
         assertThat(summary.averageRatingFor(iHaveResourcesToDoMyWork)).isEqualTo( (double) (5 + 3 + 1) / 3 );
         assertThat(summary.averageRatingFor(iFeelEmpowered)).isEqualTo( (double) (5 + 3 + 2) / 3 );
