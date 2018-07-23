@@ -6,6 +6,8 @@ import com.github.wibowo.survey.model.SurveyException;
 import com.github.wibowo.survey.model.questionAnswer.Question;
 import com.github.wibowo.survey.model.questionAnswer.QuestionFactory;
 import com.github.wibowo.survey.model.questionAnswer.Theme;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringTokenizer;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
@@ -15,8 +17,6 @@ import java.util.Arrays;
 
 public final class CsvSurveyReader implements SurveyReader<InputStream> {
 
-    private final String COMMA_SEPARATED_SPLITTER = "\\s*,\\s*";
-
     @Override
     public Survey readFrom(final InputStream source) {
 
@@ -24,7 +24,7 @@ public final class CsvSurveyReader implements SurveyReader<InputStream> {
             final ParsingContext context = new ParsingContext();
 
             bufferedReader.lines()
-                    .filter(line -> line != null && !line.trim().isEmpty())
+                    .filter(line -> !StringUtils.isBlank(line))
                     .forEach(line -> processLine(context, line));
 
             return context.survey();
@@ -38,7 +38,8 @@ public final class CsvSurveyReader implements SurveyReader<InputStream> {
 
     private void processLine(final ParsingContext context,
                              final @NotNull String line) {
-        context.processLine(line.split(COMMA_SEPARATED_SPLITTER));
+        final StringTokenizer stringTokenizer = new StringTokenizer(line, ',', '"');
+        context.processLine(stringTokenizer.getTokenArray());
     }
 
     static class ParsingContext {

@@ -35,9 +35,9 @@ public final class Application {
         final NumberFormat percentFormat = DecimalFormat.getPercentInstance();
         LOGGER.info("=======================================");
         LOGGER.info("Participation percentage : {}", percentFormat.format(summary.getParticipationPercentage()));
-        LOGGER.info("Total participation      : {}", summary.getNumberOfParticipations());
+        LOGGER.info("Total participation : {}", summary.getNumberOfParticipations());
         LOGGER.info("=======================================");
-        final NumberFormat ratingFormat = new DecimalFormat("###.00");
+        final NumberFormat ratingFormat = new DecimalFormat("0.00");
         for (final Question question : survey.questions()) {
             if (question instanceof RatingQuestion) {
                 LOGGER.info("{} : {}",

@@ -119,6 +119,21 @@ class CsvFileSurveyReaderTest {
     }
 
     @Test
+    void question_can_be_quoted() {
+        final String[] rows = new String[]{
+                "theme,type,text",
+                "The Work,ratingquestion,\"In general, I have the resources (e.g., business tools, information, facilities, IT or functional support) I need to be effective.\""
+        };
+        final Survey survey = new CsvSurveyReader().readFrom(inputFrom(rows));
+        assertNotNull(survey);
+
+        final List<Question> questions = StreamSupport.stream(survey.questions().spliterator(), false)
+                .collect(Collectors.toList());
+        assertThat(questions).hasSize(1);
+        verifyQuestion(questions.get(0), Theme.Work, RatingQuestion.class, "In general, I have the resources (e.g., business tools, information, facilities, IT or functional support) I need to be effective.");
+    }
+
+    @Test
     void reading_multiple_questions_of_same_type() {
         final String[] rows = new String[]{
                 "theme,type,text",

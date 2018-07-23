@@ -1,5 +1,6 @@
 package com.github.wibowo.survey.model.questionAnswer;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -20,7 +21,7 @@ public final class RatingQuestion extends BaseQuestion<RatingAnswer> {
 
     @Override
     public RatingAnswer createAnswerFrom(final String stringValue) {
-        if (stringValue == null || stringValue.trim().isEmpty()) {
+        if (StringUtils.isBlank(stringValue)) {
             return nullAnswer();
         }
 

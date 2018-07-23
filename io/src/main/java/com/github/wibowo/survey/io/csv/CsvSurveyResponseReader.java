@@ -6,6 +6,8 @@ import com.github.wibowo.survey.model.EmployeeResponse;
 import com.github.wibowo.survey.model.Survey;
 import com.github.wibowo.survey.model.SurveyException;
 import com.github.wibowo.survey.model.questionAnswer.Question;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringTokenizer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -22,8 +24,6 @@ import java.util.stream.Collectors;
 public final class CsvSurveyResponseReader implements SurveyResponseReader<InputStream> {
     private static final Logger LOGGER = LogManager.getLogger(CsvSurveyResponseReader.class);
 
-    private final String COMMA_SEPARATED_SPLITTER = "\\s*,\\s*";
-
     // Alternatively: "yyyy-MM-dd'T'HH:mm:ssXXX"
     final DateTimeFormatter submittedTimeParser = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
@@ -35,7 +35,7 @@ public final class CsvSurveyResponseReader implements SurveyResponseReader<Input
 
         try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(source))) {
             return bufferedReader.lines()
-                    .filter(line -> line != null && !line.trim().isEmpty())
+                    .filter(line -> !StringUtils.isBlank(line))
                     .map(line -> processLine(line, survey))
                     .collect(Collectors.toList());
         } catch (final SurveyException exception) {
@@ -47,7 +47,10 @@ public final class CsvSurveyResponseReader implements SurveyResponseReader<Input
 
     private EmployeeResponse processLine(final @NotNull String line,
                                          final Survey survey) {
-        final String[] values = line.split(COMMA_SEPARATED_SPLITTER);
+        final StringTokenizer stringTokenizer = new StringTokenizer(line, ',', '"')
+                .setIgnoreEmptyTokens(false)
+                .setEmptyTokenAsNull(false);
+        final String[] values = stringTokenizer.getTokenArray();
         final String email = values[0];
         final String employeeID = values[1];
 
@@ -55,7 +58,7 @@ public final class CsvSurveyResponseReader implements SurveyResponseReader<Input
         final String submittedAtAsString = values[2];
 
         ZonedDateTime submittedAt = null;
-        if (submittedAtAsString != null && submittedAtAsString.trim().length() > 0) {
+        if (!StringUtils.isBlank(submittedAtAsString)) {
             submittedAt = ZonedDateTime.parse(submittedAtAsString, submittedTimeParser);
         }
 

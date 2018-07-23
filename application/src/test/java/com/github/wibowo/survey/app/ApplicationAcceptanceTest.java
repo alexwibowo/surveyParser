@@ -17,10 +17,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.Assert.assertFalse;
 
 public class ApplicationAcceptanceTest {
 
@@ -55,16 +57,16 @@ public class ApplicationAcceptanceTest {
     }
 
     @Test
-    void test() throws IOException {
+    void simple_test_with_all_answered() throws IOException {
         final String question1 = "I like the kind of work I do";
-        final String question2 = "In general I have the resources I need to be effective.";
+        final String question2 = "In general, I have the resources (e.g., business tools, information, facilities, IT or functional support) I need to be effective.";
         final String question3 = "We are working at the right pace to meet our goals.";
         final String question4 = "I feel empowered to get the work done for which I am responsible.";
         final String question5 = "I am appropriately involved in decisions that affect my work.";
         final String[] surveyLines = new String[]{
                 "theme,type,text",
                 "The Work,ratingquestion," + question1,
-                "The Work,ratingquestion," + question2,
+                "The Work,ratingquestion,\"" + question2 + "\"",
                 "The Work,ratingquestion," + question3,
                 "The Work,ratingquestion," + question4,
                 "The Work,ratingquestion," + question5
@@ -81,13 +83,139 @@ public class ApplicationAcceptanceTest {
 
 
         final @NotNull String[] lines = executeAndGetOutput();
-        verifyLineExists(lines, "Participation percentage", "Participation percentage\\s*:\\s*100%");
-        verifyLineExists(lines, "Total participation", "Total participation\\s*:\\s*3");
-        verifyLineExists(lines, question1, question1 + "\\s*:\\s*4.67");
-        verifyLineExists(lines, question2, question2 + "\\s*:\\s*3.00");
-        verifyLineExists(lines, question3, question3 + "\\s*:\\s*3.33");
-        verifyLineExists(lines, question4, question4 + "\\s*:\\s*3.00");
-        verifyLineExists(lines, question5, question5 + "\\s*:\\s*3.67");
+        verifyLineExists(lines, "Participation percentage", "Participation percentage : 100%");
+        verifyLineExists(lines, "Total participation", "Total participation : 3");
+        verifyLineExists(lines, question1, question1 + " : 4.67");
+        verifyLineExists(lines, question2, question2 + " : 3.00");
+        verifyLineExists(lines, question3, question3 + " : 3.33");
+        verifyLineExists(lines, question4, question4 + " : 3.00");
+        verifyLineExists(lines, question5, question5 + " : 3.67");
+    }
+
+    @Test
+    void test_with_unsubmitted_response() throws IOException {
+        final String question1 = "I like the kind of work I do";
+        final String question2 = "In general, I have the resources (e.g., business tools, information, facilities, IT or functional support) I need to be effective.";
+        final String question3 = "We are working at the right pace to meet our goals.";
+        final String question4 = "I feel empowered to get the work done for which I am responsible.";
+        final String question5 = "I am appropriately involved in decisions that affect my work.";
+        final String[] surveyLines = new String[]{
+                "theme,type,text",
+                "The Work,ratingquestion," + question1,
+                "The Work,ratingquestion,\"" + question2 + "\"",
+                "The Work,ratingquestion," + question3,
+                "The Work,ratingquestion," + question4,
+                "The Work,ratingquestion," + question5
+        };
+
+        final String[] surveyResponseLines = new String[]{
+                "employee1@abc.xyz,1,2014-07-28T20:35:41+00:00,5,5,5,4,4",
+                ",2,2014-07-29T07:05:41+00:00,4,5,5,3,3",
+                ",3,2014-07-29T17:35:41+00:00,5,5,5,5,4",
+                "employee4@abc.xyz,4,2014-07-30T04:05:41+00:00,5,5,5,4,4",
+                ",5,2014-07-31T11:35:41+00:00,4,5,5,2,3",
+                "employee5@abc.xyz,6,,,,,,"
+        };
+
+        Files.write(surveyFile.toPath(), Arrays.asList(surveyLines), Charset.defaultCharset());
+        Files.write(surveyResponseFile.toPath(), Arrays.asList(surveyResponseLines), Charset.defaultCharset());
+
+
+        final @NotNull String[] lines = executeAndGetOutput();
+        verifyLineExists(lines, "Participation percentage", "Participation percentage : 83%"); // 5 out of 6
+        verifyLineExists(lines, "Total participation", "Total participation : 5");
+        verifyLineExists(lines, question1, question1 + " : " + formatRating(((double) (5 + 4 + 5 + 5 + 4)) / 5));
+        verifyLineExists(lines, question2, question2 + " : " + formatRating(((double) (5 + 5 + 5 + 5 + 5)) / 5));
+        verifyLineExists(lines, question3, question3 + " : " + formatRating(((double) (5 + 5 + 5 + 5 + 5)) / 5));
+        verifyLineExists(lines, question4, question4 + " : " + formatRating(((double) (4 + 3 + 5 + 4 + 2)) / 5));
+        verifyLineExists(lines, question5, question5 + " : " + formatRating(((double) (4 + 3 + 4 + 4 + 3)) / 5));
+    }
+
+    @Test
+    void test_with_singleSelect_question() throws IOException {
+        final String question1 = "I like the kind of work I do";
+        final String question2 = "In general, I have the resources (e.g., business tools, information, facilities, IT or functional support) I need to be effective.";
+        final String question3 = "We are working at the right pace to meet our goals.";
+        final String question4 = "I feel empowered to get the work done for which I am responsible.";
+        final String question5 = "Manager";
+        final String[] surveyLines = new String[]{
+                "theme,type,text",
+                "The Work,ratingquestion," + question1,
+                "The Work,ratingquestion,\"" + question2 + "\"",
+                "The Work,ratingquestion," + question3,
+                "The Work,ratingquestion," + question4,
+                "The Work,singleselect," + question5
+        };
+
+        final String[] surveyResponseLines = new String[]{
+                ",1,2014-07-28T20:35:41+00:00,5,5,5,4,Sally",
+                ",2,2014-07-29T07:05:41+00:00,4,5,5,3,Jane",
+                ",3,2014-07-29T17:35:41+00:00,5,5,5,5,John",
+                ",4,2014-07-30T04:05:41+00:00,5,5,5,4,Bob",
+                ",5,2014-07-31T11:35:41+00:00,4,5,5,2,Mary"
+        };
+
+        Files.write(surveyFile.toPath(), Arrays.asList(surveyLines), Charset.defaultCharset());
+        Files.write(surveyResponseFile.toPath(), Arrays.asList(surveyResponseLines), Charset.defaultCharset());
+
+        final @NotNull String[] lines = executeAndGetOutput();
+        verifyLineExists(lines, "Participation percentage", "Participation percentage : 100%");
+        verifyLineExists(lines, "Total participation", "Total participation : 5");
+        verifyLineExists(lines, question1, question1 + " : " + formatRating(((double) (5 + 4 + 5 + 5 + 4)) / 5));
+        verifyLineExists(lines, question2, question2 + " : " + formatRating(((double) (5 + 5 + 5 + 5 + 5)) / 5));
+        verifyLineExists(lines, question3, question3 + " : " + formatRating(((double) (5 + 5 + 5 + 5 + 5)) / 5));
+        verifyLineExists(lines, question4, question4 + " : " + formatRating(((double) (4 + 3 + 5 + 4 + 2)) / 5));
+        assertFalse(Arrays.stream(lines)
+                .filter(line -> line.startsWith("Manager"))
+                .findAny()
+                .isPresent());
+    }
+
+    @Test
+    void test_with_multiple_response_from_same_employee() throws IOException {
+        final String question1 = "I like the kind of work I do";
+        final String question2 = "I have the resource I need to be effective.";
+        final String question3 = "City";
+        final String question4 = "I feel empowered to get the work done for which I am responsible.";
+        final String question5 = "Manager";
+        final String[] surveyLines = new String[]{
+                "type,theme,text",
+                "ratingquestion,The Work," + question1,
+                "ratingquestion,The Work," + question2,
+                "singleselect,Demographics," + question3,
+                "ratingquestion,The Work," + question4,
+                "singleselect,Demographics," + question5
+        };
+
+        final String[] surveyResponseLines = new String[]{
+                "employee1@abc.xyz,,,5,5,Perth,4,Sally",
+                "employee2@abc.xyz,,,,5,Sydney,3,Jane",
+                "employee2@abc.xyz,,,,5,,5,John",
+                "employee2@abc.xyz,,,5,5,Melbourne,4,Bob",
+                "employee2@abc.xyz,,,4,5,Darwin,2,Mary",
+        };
+
+        Files.write(surveyFile.toPath(), Arrays.asList(surveyLines), Charset.defaultCharset());
+        Files.write(surveyResponseFile.toPath(), Arrays.asList(surveyResponseLines), Charset.defaultCharset());
+
+        final @NotNull String[] lines = executeAndGetOutput();
+        verifyLineExists(lines, "Participation percentage", "Participation percentage : 0%");
+        verifyLineExists(lines, "Total participation", "Total participation : 0");
+        verifyLineExists(lines, question1, question1 + " : " + formatRating(0));
+        verifyLineExists(lines, question2, question2 + " : " + formatRating(0));
+        verifyLineExists(lines, question4, question4 + " : " + formatRating(0));
+        assertFalse(Arrays.stream(lines)
+                .filter(line -> line.startsWith("Manager"))
+                .findAny()
+                .isPresent());
+        assertFalse(Arrays.stream(lines)
+                .filter(line -> line.startsWith("City"))
+                .findAny()
+                .isPresent());
+    }
+
+    private String formatRating(double value) {
+        return new DecimalFormat("0.00").format(value);
     }
 
     private void verifyLineExists(@NotNull final String[] lines,
@@ -95,7 +223,7 @@ public class ApplicationAcceptanceTest {
                                   final String lineMatcher) {
         assertThat(Arrays.stream(lines)
                 .filter(line -> line.startsWith(lineFinder))
-                .findFirst().get()).matches(lineMatcher);
+                .findFirst().get()).isEqualTo(lineMatcher);
     }
 
     @NotNull

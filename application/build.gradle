@@ -5,5 +5,4 @@ dependencies {
     compile project(":io")
 
     testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', version: "${log4j2Version}", classifier: "tests"
-
 }

@@ -1,5 +1,6 @@
 package com.github.wibowo.survey.model.questionAnswer;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 public final class SingleSelectQuestion extends BaseQuestion<SingleSelectAnswer> {
@@ -16,7 +17,7 @@ public final class SingleSelectQuestion extends BaseQuestion<SingleSelectAnswer>
 
     @Override
     public SingleSelectAnswer createAnswerFrom(final String stringValue) {
-        if (stringValue == null || stringValue.trim().isEmpty()) {
+        if (StringUtils.isBlank(stringValue)) {
             return nullAnswer();
         } else {
             return SingleSelectAnswer.createAnswer(this, stringValue);

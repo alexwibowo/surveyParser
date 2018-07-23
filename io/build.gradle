@@ -2,4 +2,5 @@ apply plugin: 'java'
 
 dependencies {
     compile project(":model")
+    compile group: "org.apache.commons", name: "commons-text", version: "${commonsTextVersion}"
 }
