@@ -1,4 +1,4 @@
-package com.github.wibowo.survey.io.console;
+package com.github.wibowo.survey.io.logger;
 
 import com.github.wibowo.survey.io.SurveyResponseSummaryRenderer;
 import com.github.wibowo.survey.model.SurveyResponseSummary;

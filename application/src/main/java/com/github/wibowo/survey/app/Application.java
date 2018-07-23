@@ -1,7 +1,7 @@
 package com.github.wibowo.survey.app;
 
 import com.github.wibowo.survey.io.SurveySummariser;
-import com.github.wibowo.survey.io.console.LoggerSurveyResponseSummaryRenderer;
+import com.github.wibowo.survey.io.logger.LoggerSurveyResponseSummaryRenderer;
 import com.github.wibowo.survey.io.csv.CsvSurveyReader;
 import com.github.wibowo.survey.io.csv.CsvSurveyResponseReader;
 import com.github.wibowo.survey.model.EmployeeResponse;
