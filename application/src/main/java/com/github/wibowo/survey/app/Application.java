@@ -21,7 +21,6 @@ public final class Application {
     public static final Logger LOGGER = LogManager.getLogger(Application.class);
 
     public static void main(final String... args) throws FileNotFoundException {
-        LOGGER.debug("Processing {}", args);
         final String surveyQuestion = args[0];
         final String surveyResponse = args[1];
 

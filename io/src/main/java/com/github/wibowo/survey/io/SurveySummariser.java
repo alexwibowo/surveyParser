@@ -21,7 +21,7 @@ public final class SurveySummariser {
                 .collect(Collectors.toList());
 
         final SurveyResponseSummary surveyResponseSummary = new SurveyResponseSummary(survey);
-        surveyResponseSummary.setParticipationPercentage(submittedResponses.size()  / totalResponses);
+        surveyResponseSummary.setParticipationPercentage( ((double)submittedResponses.size())  / totalResponses);
         surveyResponseSummary.setNumberOfParticipations(submittedResponses.size());
 
         for (final Question question : survey.questions()) {
@@ -29,6 +29,7 @@ public final class SurveySummariser {
                 final RatingQuestion ratingQuestion = (RatingQuestion) question;
                 final Double average = submittedResponses.stream()
                         .map(response -> response.answerFor(ratingQuestion))
+                        .filter(answer -> !answer.isNull())
                         .collect(Collectors.averagingDouble(RatingAnswer::rating));
                 surveyResponseSummary.addRatingQuestionAverage(ratingQuestion, average);
             }

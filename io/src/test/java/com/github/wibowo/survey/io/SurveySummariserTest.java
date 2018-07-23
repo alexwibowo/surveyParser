@@ -62,12 +62,47 @@ class SurveySummariserTest {
 
     @Test
     void unsubmitted_survey_should_be_excluded() {
-        throw new RuntimeException("Not implemented yet");
+        final ArrayList<EmployeeResponse> employeeResponses = new ArrayList<>();
+        employeeResponses.add(EmployeeResponse.submittedResponse(survey1, new Employee("1", "alex@gmail.com"), ZonedDateTime.now().minusDays(5))
+                .addAnswer(RatingAnswer.createAnswer(iLikeMyWork, 5))
+                .addAnswer(RatingAnswer.createAnswer(iHaveResourcesToDoMyWork, 5))
+                .addAnswer(RatingAnswer.createAnswer(iFeelEmpowered, 5)));
+        employeeResponses.add(EmployeeResponse.unsubmittedResponse(survey1, new Employee("2", "bob@gmail.com"))
+                .addAnswer(RatingAnswer.createAnswer(iLikeMyWork, 4))
+                .addAnswer(RatingAnswer.createAnswer(iHaveResourcesToDoMyWork, 3))
+                .addAnswer(RatingAnswer.createAnswer(iFeelEmpowered, 3)));
+        employeeResponses.add(EmployeeResponse.submittedResponse(survey1, new Employee("3", "john@gmail.com"), ZonedDateTime.now().minusDays(2))
+                .addAnswer(RatingAnswer.createAnswer(iLikeMyWork, 1))
+                .addAnswer(RatingAnswer.createAnswer(iHaveResourcesToDoMyWork, 1))
+                .addAnswer(RatingAnswer.createAnswer(iFeelEmpowered, 2)));
+
+        final SurveyResponseSummary summary = SurveySummariser.summarise(survey1, employeeResponses);
+        assertThat(summary.getParticipationPercentage()).isEqualTo( 2.0d /3);
+        assertThat(summary.averageRatingFor(iLikeMyWork)).isEqualTo( 3.0d );
+        assertThat(summary.averageRatingFor(iHaveResourcesToDoMyWork)).isEqualTo( 3.0d );
+        assertThat(summary.averageRatingFor(iFeelEmpowered)).isEqualTo( (double) (5  + 2) / 2 );
     }
 
     @Test
     void unanswered_question_should_be_excluded() {
-        throw new RuntimeException("Not implemented yet");
+        final ArrayList<EmployeeResponse> employeeResponses = new ArrayList<>();
+        employeeResponses.add(EmployeeResponse.submittedResponse(survey1, new Employee("1", "alex@gmail.com"), ZonedDateTime.now().minusDays(5))
+                .addAnswer(RatingAnswer.createAnswer(iLikeMyWork, 5))
+                .addAnswer(RatingAnswer.createAnswer(iHaveResourcesToDoMyWork, 5))
+                .addAnswer(RatingAnswer.createAnswer(iFeelEmpowered, 5)));
+        employeeResponses.add(EmployeeResponse.submittedResponse(survey1, new Employee("2", "bob@gmail.com"), ZonedDateTime.now().minusDays(6))
+                .addAnswer(RatingAnswer.nullAnswer(iLikeMyWork))
+                .addAnswer(RatingAnswer.createAnswer(iHaveResourcesToDoMyWork, 3))
+                .addAnswer(RatingAnswer.nullAnswer(iFeelEmpowered)));
+        employeeResponses.add(EmployeeResponse.submittedResponse(survey1, new Employee("3", "john@gmail.com"), ZonedDateTime.now().minusDays(2))
+                .addAnswer(RatingAnswer.createAnswer(iLikeMyWork, 1))
+                .addAnswer(RatingAnswer.createAnswer(iHaveResourcesToDoMyWork, 1))
+                .addAnswer(RatingAnswer.createAnswer(iFeelEmpowered, 2)));
+        final SurveyResponseSummary summary = SurveySummariser.summarise(survey1, employeeResponses);
+        assertThat(summary.getParticipationPercentage()).isEqualTo(1.0);
+        assertThat(summary.averageRatingFor(iLikeMyWork)).isEqualTo( (double) (5 + 1) / 2);
+        assertThat(summary.averageRatingFor(iHaveResourcesToDoMyWork)).isEqualTo( (double) (5  + 3 + 1) / 3 );
+        assertThat(summary.averageRatingFor(iFeelEmpowered)).isEqualTo( (double) (5 + 2) / 2 );
     }
 
 
