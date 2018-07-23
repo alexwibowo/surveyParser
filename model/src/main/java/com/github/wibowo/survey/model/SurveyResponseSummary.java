@@ -1,5 +1,6 @@
 package com.github.wibowo.survey.model;
 
+import com.github.wibowo.survey.model.questionAnswer.Question;
 import com.github.wibowo.survey.model.questionAnswer.RatingQuestion;
 
 import java.util.HashMap;
@@ -18,6 +19,10 @@ public final class SurveyResponseSummary {
     public SurveyResponseSummary(final Survey survey) {
         this.survey = survey;
         this.ratingAverageByQuestion = new HashMap<>();
+    }
+
+    public Iterable<Question> getQuestions() {
+        return survey.questions();
     }
 
     public double getParticipationPercentage() {
