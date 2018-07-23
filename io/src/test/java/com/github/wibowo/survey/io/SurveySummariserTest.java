@@ -1,9 +1,6 @@
 package com.github.wibowo.survey.io;
 
-import com.github.wibowo.survey.model.Employee;
-import com.github.wibowo.survey.model.EmployeeResponse;
-import com.github.wibowo.survey.model.Survey;
-import com.github.wibowo.survey.model.DefaultSurveyResponseSummary;
+import com.github.wibowo.survey.model.*;
 import com.github.wibowo.survey.model.questionAnswer.RatingAnswer;
 import com.github.wibowo.survey.model.questionAnswer.RatingQuestion;
 import com.github.wibowo.survey.model.questionAnswer.SingleSelectQuestion;
@@ -53,7 +50,7 @@ class SurveySummariserTest {
                 .addAnswer(RatingAnswer.createAnswer(iLikeMyWork, 1))
                 .addAnswer(RatingAnswer.createAnswer(iHaveResourcesToDoMyWork, 1))
                 .addAnswer(RatingAnswer.createAnswer(iFeelEmpowered, 2)));
-        final DefaultSurveyResponseSummary summary = SurveySummariser.summarise(survey1, employeeResponses);
+        final SurveySummary summary = SurveySummariser.summarise(survey1, employeeResponses);
         assertThat(summary.getParticipationPercentage()).isEqualTo(1.0);
         assertThat(summary.averageRatingFor(iLikeMyWork)).isEqualTo( (double) (5 + 4 + 1) / 3 );
         assertThat(summary.averageRatingFor(iHaveResourcesToDoMyWork)).isEqualTo( (double) (5 + 3 + 1) / 3 );
@@ -61,7 +58,7 @@ class SurveySummariserTest {
     }
 
     @Test
-    void unsubmitted_survey_should_be_excluded() {
+    void all_datapoints_from_unsubmitted_survey_should_be_excluded() {
         final ArrayList<EmployeeResponse> employeeResponses = new ArrayList<>();
         employeeResponses.add(EmployeeResponse.submittedResponse(survey1, new Employee("1", "alex@gmail.com"), ZonedDateTime.now().minusDays(5))
                 .addAnswer(RatingAnswer.createAnswer(iLikeMyWork, 5))
@@ -76,7 +73,7 @@ class SurveySummariserTest {
                 .addAnswer(RatingAnswer.createAnswer(iHaveResourcesToDoMyWork, 1))
                 .addAnswer(RatingAnswer.createAnswer(iFeelEmpowered, 2)));
 
-        final DefaultSurveyResponseSummary summary = SurveySummariser.summarise(survey1, employeeResponses);
+        final SurveySummary summary = SurveySummariser.summarise(survey1, employeeResponses);
         assertThat(summary.getParticipationPercentage()).isEqualTo( 2.0d /3);
         assertThat(summary.averageRatingFor(iLikeMyWork)).isEqualTo( 3.0d );
         assertThat(summary.averageRatingFor(iHaveResourcesToDoMyWork)).isEqualTo( 3.0d );
@@ -98,7 +95,7 @@ class SurveySummariserTest {
                 .addAnswer(RatingAnswer.createAnswer(iLikeMyWork, 1))
                 .addAnswer(RatingAnswer.createAnswer(iHaveResourcesToDoMyWork, 1))
                 .addAnswer(RatingAnswer.createAnswer(iFeelEmpowered, 2)));
-        final DefaultSurveyResponseSummary summary = SurveySummariser.summarise(survey1, employeeResponses);
+        final SurveySummary summary = SurveySummariser.summarise(survey1, employeeResponses);
         assertThat(summary.getParticipationPercentage()).isEqualTo(1.0);
         assertThat(summary.averageRatingFor(iLikeMyWork)).isEqualTo( (double) (5 + 1) / 2);
         assertThat(summary.averageRatingFor(iHaveResourcesToDoMyWork)).isEqualTo( (double) (5  + 3 + 1) / 3 );

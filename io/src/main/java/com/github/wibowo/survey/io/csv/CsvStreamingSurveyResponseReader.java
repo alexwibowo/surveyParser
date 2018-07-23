@@ -1,5 +1,6 @@
 package com.github.wibowo.survey.io.csv;
 
+import com.github.wibowo.survey.io.SurveyResponseReader;
 import com.github.wibowo.survey.model.Survey;
 import com.github.wibowo.survey.model.SurveyException;
 import com.github.wibowo.survey.model.SurveySummary;
@@ -19,9 +20,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public final class CsvStreamingSurveyResponseReader {
+public final class CsvStreamingSurveyResponseReader implements SurveyResponseReader<InputStream> {
     private static final Logger LOGGER = LogManager.getLogger(CsvStreamingSurveyResponseReader.class);
 
+    @Override
     public SurveySummary readFrom(final InputStream source,
                                          final Survey survey) {
         Objects.requireNonNull(source);

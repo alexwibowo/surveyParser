@@ -29,9 +29,8 @@ public final class Application {
             final CsvStreamingSurveyResponseReader streamingReader = new CsvStreamingSurveyResponseReader();
             surveySummary = streamingReader.readFrom(new FileInputStream(surveyResponse), survey);
         } else {
-            final CsvSurveyResponseReader csvSurveyResponseReader = new CsvSurveyResponseReader();
-            final List<EmployeeResponse> employeeResponses = csvSurveyResponseReader.readFrom(new FileInputStream(surveyResponse), survey);
-            surveySummary = SurveySummariser.summarise(survey, employeeResponses);
+            final CsvSurveyResponseReader csvreader = new CsvSurveyResponseReader();
+            surveySummary = csvreader.readFrom(new FileInputStream(surveyResponse), survey);
         }
 
         new LoggerSurveyResponseSummaryRenderer().render(survey, surveySummary);

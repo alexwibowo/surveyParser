@@ -1,8 +1,9 @@
 package com.github.wibowo.survey.io;
 
+import com.github.wibowo.survey.model.DefaultSurveyResponseSummary;
 import com.github.wibowo.survey.model.EmployeeResponse;
 import com.github.wibowo.survey.model.Survey;
-import com.github.wibowo.survey.model.DefaultSurveyResponseSummary;
+import com.github.wibowo.survey.model.SurveySummary;
 import com.github.wibowo.survey.model.questionAnswer.Question;
 import com.github.wibowo.survey.model.questionAnswer.RatingAnswer;
 import com.github.wibowo.survey.model.questionAnswer.RatingQuestion;
@@ -12,8 +13,8 @@ import java.util.stream.Collectors;
 
 public final class SurveySummariser {
 
-    public static DefaultSurveyResponseSummary summarise(final Survey survey,
-                                                         final List<EmployeeResponse> employeeResponses) {
+    public static SurveySummary summarise(final Survey survey,
+                                          final List<EmployeeResponse> employeeResponses) {
         final int totalResponses = employeeResponses.size();
 
         final List<EmployeeResponse> submittedResponses = employeeResponses.stream()

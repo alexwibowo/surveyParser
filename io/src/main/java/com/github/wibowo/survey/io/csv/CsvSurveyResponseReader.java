@@ -1,10 +1,8 @@
 package com.github.wibowo.survey.io.csv;
 
 import com.github.wibowo.survey.io.SurveyResponseReader;
-import com.github.wibowo.survey.model.Employee;
-import com.github.wibowo.survey.model.EmployeeResponse;
-import com.github.wibowo.survey.model.Survey;
-import com.github.wibowo.survey.model.SurveyException;
+import com.github.wibowo.survey.io.SurveySummariser;
+import com.github.wibowo.survey.model.*;
 import com.github.wibowo.survey.model.questionAnswer.Question;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringTokenizer;
@@ -28,11 +26,20 @@ public final class CsvSurveyResponseReader implements SurveyResponseReader<Input
     final DateTimeFormatter submittedTimeParser = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
     @Override
-    public List<EmployeeResponse> readFrom(final InputStream source,
-                                           final Survey survey) {
+    public SurveySummary readFrom(final InputStream source,
+                                  final Survey survey) {
         Objects.requireNonNull(source);
         Objects.requireNonNull(survey);
         LOGGER.info("Reading answer for survey [{}]", survey);
+
+        final List<EmployeeResponse> employeeResponses = parseCSVFile(source, survey);
+        return SurveySummariser.summarise(survey, employeeResponses);
+    }
+
+    List<EmployeeResponse> parseCSVFile(final InputStream source,
+                                        final Survey survey) {
+        Objects.requireNonNull(source);
+        Objects.requireNonNull(survey);
 
         try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(source))) {
             return bufferedReader.lines()
@@ -45,6 +52,7 @@ public final class CsvSurveyResponseReader implements SurveyResponseReader<Input
             throw new SurveyException("An unexpected error has occurred", exception);
         }
     }
+
 
     private EmployeeResponse processLine(final @NotNull String line,
                                          final Survey survey) {
