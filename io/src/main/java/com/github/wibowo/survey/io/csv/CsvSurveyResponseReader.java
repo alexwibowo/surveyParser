@@ -30,6 +30,7 @@ public final class CsvSurveyResponseReader implements SurveyResponseReader<Input
     @Override
     public List<EmployeeResponse> readFrom(final InputStream source,
                                            final Survey survey) {
+        Objects.requireNonNull(source);
         Objects.requireNonNull(survey);
         LOGGER.info("Reading answer for survey [{}]", survey);
 

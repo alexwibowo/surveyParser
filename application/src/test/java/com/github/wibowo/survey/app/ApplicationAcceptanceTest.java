@@ -201,9 +201,9 @@ public class ApplicationAcceptanceTest {
         final @NotNull String[] lines = executeAndGetOutput();
         verifyLineExists(lines, "Participation percentage", "Participation percentage : 0%");
         verifyLineExists(lines, "Total participation", "Total participation : 0");
-        verifyLineExists(lines, question1, question1 + " : " + formatRating(0));
-        verifyLineExists(lines, question2, question2 + " : " + formatRating(0));
-        verifyLineExists(lines, question4, question4 + " : " + formatRating(0));
+        verifyLineExists(lines, question1, question1 + " : N/A");
+        verifyLineExists(lines, question2, question2 + " : N/A");
+        verifyLineExists(lines, question4, question4 + " : N/A");
         assertFalse(Arrays.stream(lines)
                 .filter(line -> line.startsWith("Manager"))
                 .findAny()

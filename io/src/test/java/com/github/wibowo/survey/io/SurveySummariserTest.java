@@ -3,7 +3,7 @@ package com.github.wibowo.survey.io;
 import com.github.wibowo.survey.model.Employee;
 import com.github.wibowo.survey.model.EmployeeResponse;
 import com.github.wibowo.survey.model.Survey;
-import com.github.wibowo.survey.model.SurveyResponseSummary;
+import com.github.wibowo.survey.model.DefaultSurveyResponseSummary;
 import com.github.wibowo.survey.model.questionAnswer.RatingAnswer;
 import com.github.wibowo.survey.model.questionAnswer.RatingQuestion;
 import com.github.wibowo.survey.model.questionAnswer.SingleSelectQuestion;
@@ -53,7 +53,7 @@ class SurveySummariserTest {
                 .addAnswer(RatingAnswer.createAnswer(iLikeMyWork, 1))
                 .addAnswer(RatingAnswer.createAnswer(iHaveResourcesToDoMyWork, 1))
                 .addAnswer(RatingAnswer.createAnswer(iFeelEmpowered, 2)));
-        final SurveyResponseSummary summary = SurveySummariser.summarise(survey1, employeeResponses);
+        final DefaultSurveyResponseSummary summary = SurveySummariser.summarise(survey1, employeeResponses);
         assertThat(summary.getParticipationPercentage()).isEqualTo(1.0);
         assertThat(summary.averageRatingFor(iLikeMyWork)).isEqualTo( (double) (5 + 4 + 1) / 3 );
         assertThat(summary.averageRatingFor(iHaveResourcesToDoMyWork)).isEqualTo( (double) (5 + 3 + 1) / 3 );
@@ -76,7 +76,7 @@ class SurveySummariserTest {
                 .addAnswer(RatingAnswer.createAnswer(iHaveResourcesToDoMyWork, 1))
                 .addAnswer(RatingAnswer.createAnswer(iFeelEmpowered, 2)));
 
-        final SurveyResponseSummary summary = SurveySummariser.summarise(survey1, employeeResponses);
+        final DefaultSurveyResponseSummary summary = SurveySummariser.summarise(survey1, employeeResponses);
         assertThat(summary.getParticipationPercentage()).isEqualTo( 2.0d /3);
         assertThat(summary.averageRatingFor(iLikeMyWork)).isEqualTo( 3.0d );
         assertThat(summary.averageRatingFor(iHaveResourcesToDoMyWork)).isEqualTo( 3.0d );
@@ -98,7 +98,7 @@ class SurveySummariserTest {
                 .addAnswer(RatingAnswer.createAnswer(iLikeMyWork, 1))
                 .addAnswer(RatingAnswer.createAnswer(iHaveResourcesToDoMyWork, 1))
                 .addAnswer(RatingAnswer.createAnswer(iFeelEmpowered, 2)));
-        final SurveyResponseSummary summary = SurveySummariser.summarise(survey1, employeeResponses);
+        final DefaultSurveyResponseSummary summary = SurveySummariser.summarise(survey1, employeeResponses);
         assertThat(summary.getParticipationPercentage()).isEqualTo(1.0);
         assertThat(summary.averageRatingFor(iLikeMyWork)).isEqualTo( (double) (5 + 1) / 2);
         assertThat(summary.averageRatingFor(iHaveResourcesToDoMyWork)).isEqualTo( (double) (5  + 3 + 1) / 3 );

@@ -2,7 +2,7 @@ package com.github.wibowo.survey.io;
 
 import com.github.wibowo.survey.model.EmployeeResponse;
 import com.github.wibowo.survey.model.Survey;
-import com.github.wibowo.survey.model.SurveyResponseSummary;
+import com.github.wibowo.survey.model.DefaultSurveyResponseSummary;
 import com.github.wibowo.survey.model.questionAnswer.Question;
 import com.github.wibowo.survey.model.questionAnswer.RatingAnswer;
 import com.github.wibowo.survey.model.questionAnswer.RatingQuestion;
@@ -12,28 +12,35 @@ import java.util.stream.Collectors;
 
 public final class SurveySummariser {
 
-    public static SurveyResponseSummary summarise(final Survey survey,
-                                                  final List<EmployeeResponse> employeeResponses) {
+    public static DefaultSurveyResponseSummary summarise(final Survey survey,
+                                                         final List<EmployeeResponse> employeeResponses) {
         final int totalResponses = employeeResponses.size();
 
         final List<EmployeeResponse> submittedResponses = employeeResponses.stream()
                 .filter(EmployeeResponse::wasSubmitted)
                 .collect(Collectors.toList());
 
-        final SurveyResponseSummary surveyResponseSummary = new SurveyResponseSummary(survey);
-        surveyResponseSummary.setParticipationPercentage( ((double)submittedResponses.size())  / totalResponses);
-        surveyResponseSummary.setNumberOfParticipations(submittedResponses.size());
+        final DefaultSurveyResponseSummary defaultSurveyResponseSummary = new DefaultSurveyResponseSummary(survey);
+        defaultSurveyResponseSummary.setParticipationPercentage( ((double)submittedResponses.size())  / totalResponses);
+        defaultSurveyResponseSummary.setNumberOfParticipations(submittedResponses.size());
 
         for (final Question question : survey.questions()) {
             if (question instanceof RatingQuestion) {
                 final RatingQuestion ratingQuestion = (RatingQuestion) question;
-                final Double average = submittedResponses.stream()
+
+                final List<RatingAnswer> answersForQuestion = submittedResponses.stream()
                         .map(response -> response.answerFor(ratingQuestion))
                         .filter(answer -> !answer.isNull())
-                        .collect(Collectors.averagingDouble(RatingAnswer::rating));
-                surveyResponseSummary.addRatingQuestionAverage(ratingQuestion, average);
+                        .collect(Collectors.toList());
+                if (answersForQuestion.isEmpty()) {
+                    defaultSurveyResponseSummary.addRatingQuestionAverage(ratingQuestion, Double.NaN);
+                } else {
+                    final Double average = answersForQuestion.stream()
+                            .collect(Collectors.averagingDouble(RatingAnswer::rating));
+                    defaultSurveyResponseSummary.addRatingQuestionAverage(ratingQuestion, average);
+                }
             }
         }
-        return surveyResponseSummary;
+        return defaultSurveyResponseSummary;
     }
 }
