@@ -21,10 +21,10 @@ class EmployeeResponseTest {
 
     @BeforeEach
     void setUp() {
-        likeMyWorkQuestion = new RatingQuestion(Theme.Work, "I like the kind of work I do.");
-        workplaceIsConvenientQuestion = new RatingQuestion(Theme.Place, "It is easy for me to reach my work");
-        managerQuestion = new SingleSelectQuestion(Theme.Work, "Manager");
-        cityQuestion = new SingleSelectQuestion(Theme.Demographic, "City");
+        likeMyWorkQuestion = new RatingQuestion(0, Theme.Work, "I like the kind of work I do.");
+        workplaceIsConvenientQuestion = new RatingQuestion(1, Theme.Place, "It is easy for me to reach my work");
+        managerQuestion = new SingleSelectQuestion(2, Theme.Work, "Manager");
+        cityQuestion = new SingleSelectQuestion(3, Theme.Demographic, "City");
         employee = new Employee("alex", "alex@gmail.com");
         survey = new Survey()
                 .addQuestion(likeMyWorkQuestion)

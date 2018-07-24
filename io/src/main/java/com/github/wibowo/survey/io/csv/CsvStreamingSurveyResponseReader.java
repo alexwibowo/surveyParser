@@ -9,8 +9,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Memory friendly survey response parser. It does not keep all responses in memory, only the accumulating response.
@@ -22,7 +26,7 @@ public final class CsvStreamingSurveyResponseReader extends BaseCsvSurveyRespons
 
     public CsvStreamingSurveyResponseReader(final Survey survey) {
         super(survey);
-        this.response = new UnsafeSurveyResponse();
+        this.response = new UnsafeSurveyResponse(survey);
     }
 
     @Override
@@ -34,12 +38,19 @@ public final class CsvStreamingSurveyResponseReader extends BaseCsvSurveyRespons
         private long totalResponse;
         private long totalParticipation;
 
-        private final Map<RatingQuestion, Integer> totalRatingForQuestions;
-        private final Map<RatingQuestion, Integer> numberParticipationsByQuestion;
+        private final int[] totalRatingForQuestions;
+        private final int[] numberParticipationsByQuestion;
+//        private final Map<RatingQuestion, Integer> totalRatingForQuestions;
+//        private final Map<RatingQuestion, Integer> numberParticipationsByQuestion;
 
-        private UnsafeSurveyResponse() {
-            totalRatingForQuestions = new HashMap<>();
-            numberParticipationsByQuestion = new HashMap<>();
+        private UnsafeSurveyResponse(final Survey survey) {
+            final List<Question> collect = StreamSupport.stream(survey.questions().spliterator(), false).collect(Collectors.toList());
+            totalRatingForQuestions = new int[collect.size()];
+            numberParticipationsByQuestion = new int[collect.size()];
+            Arrays.fill(totalRatingForQuestions, Integer.MIN_VALUE);
+            Arrays.fill(numberParticipationsByQuestion, Integer.MIN_VALUE);
+//            totalRatingForQuestions = new HashMap<>();
+//            numberParticipationsByQuestion = new HashMap<>();
         }
 
         private void addResponse(){
@@ -52,11 +63,16 @@ public final class CsvStreamingSurveyResponseReader extends BaseCsvSurveyRespons
 
         private void addRatingForQuestion(final RatingQuestion question,
                                          final RatingAnswer ratingAnswer) {
-            final Integer currentTotalRatingForQuestion = totalRatingForQuestions.computeIfAbsent(question, ignored -> 0);
-            final Integer currentNumberParticipationsForQuestion = numberParticipationsByQuestion.computeIfAbsent(question, ignored -> 0);
+//            final Integer currentTotalRatingForQuestion = totalRatingForQuestions.computeIfAbsent(question, ignored -> 0);
+//            final Integer currentNumberParticipationsForQuestion = numberParticipationsByQuestion.computeIfAbsent(question, ignored -> 0);
+            int currentTotalRatingForQuestion = totalRatingForQuestions[question.questionIndex()] == Integer.MIN_VALUE ? 0 : totalRatingForQuestions[question.questionIndex()];
+            int currentNumberParticipantsForQuestion = numberParticipationsByQuestion[question.questionIndex()] == Integer.MIN_VALUE ? 0 : numberParticipationsByQuestion[question.questionIndex()];
             if (!ratingAnswer.isNull()) {
-                totalRatingForQuestions.put(question, currentTotalRatingForQuestion + ratingAnswer.rating());
-                numberParticipationsByQuestion.put(question, currentNumberParticipationsForQuestion + 1);
+                totalRatingForQuestions[question.questionIndex()] = currentTotalRatingForQuestion + ratingAnswer.rating();
+                numberParticipationsByQuestion[question.questionIndex()] = currentNumberParticipantsForQuestion + 1;
+
+//                        totalRatingForQuestions.put(question, currentTotalRatingForQuestion + ratingAnswer.rating());
+//                numberParticipationsByQuestion.put(question, currentNumberParticipationsForQuestion + 1);
             }
         }
 
@@ -72,11 +88,15 @@ public final class CsvStreamingSurveyResponseReader extends BaseCsvSurveyRespons
 
         @Override
         public double averageRatingFor(final RatingQuestion ratingQuestion) {
-            final Integer totalRatings = totalRatingForQuestions.getOrDefault(ratingQuestion, 0);
-            final Integer numberOfParticipations = numberParticipationsByQuestion.get(ratingQuestion);
-            if (numberOfParticipations == null) {
+//            final Integer totalRatings = totalRatingForQuestions.getOrDefault(ratingQuestion, 0);
+            final int totalRatings = totalRatingForQuestions[ratingQuestion.questionIndex()];
+            final int numberOfParticipations = numberParticipationsByQuestion[ratingQuestion.questionIndex()];
+            if (numberOfParticipations == Integer.MIN_VALUE) {
                 return Double.NaN;
             }
+//            if (numberOfParticipations == null) {
+//                return Double.NaN;
+//            }
             return ((double) totalRatings) / numberOfParticipations;
         }
     }

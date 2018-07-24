@@ -1,7 +1,6 @@
 package com.github.wibowo.survey.app;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -10,6 +9,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -27,10 +27,10 @@ public class ApplicationPerfTest {
         surveyResponseFile = File.createTempFile("surveyResponse", ".csv");
         surveyResponseFile.deleteOnExit();
 
-        prepareSurveyFiles();
+        prepareSurveyFiles(surveyFile, surveyResponseFile, numEntries);
     }
 
-    private void prepareSurveyFiles() throws IOException {
+    private static void prepareSurveyFiles(File surveyFile, File surveyResponseFile, int numEntries) throws IOException {
         final String question1 = "I like the kind of work I do";
         final String question2 = "In general, I have the resources (e.g., business tools, information, facilities, IT or functional support) I need to be effective.";
         final String question3 = "We are working at the right pace to meet our goals.";
@@ -68,11 +68,54 @@ public class ApplicationPerfTest {
         bufferedWriter.close();
     }
 
+    /**
+     * Run this with profiler.
+     * It shows that most expensive operations are:
+     * 1. StringTokenizer (about 20% of time spent)
+     * 2. Integer.parseInt (about 2%
+     *
+     * @param args
+     * @throws IOException
+     */
+    public static void main(String[] args) throws IOException {
+        File surveyFile = File.createTempFile("survey", ".csv");
+        surveyFile.deleteOnExit();
 
-    @Test
-    void test_processing_using_streaming() throws IOException {
+        File  surveyResponseFile = File.createTempFile("surveyResponse", ".csv");
+        surveyResponseFile.deleteOnExit();
+
+        int numEntries = 10_000_000;
+        prepareSurveyFiles(surveyFile, surveyResponseFile, numEntries);
+
+        System.out.println("I'm ready!");
+        Scanner scanner  = new Scanner(System.in);
+        String next = scanner.next();
+
+        System.out.println(next);
         final long start = System.nanoTime();
-        executeAndGetOutput("true");
+        executeAndGetOutput("true", surveyFile, surveyResponseFile );
+        final long end = System.nanoTime();
+
+        final long durationNanos = end - start;
+        final double averagePerQuestionNanos = ((double) durationNanos) / numEntries;
+        System.out.println("Took " + TimeUnit.NANOSECONDS.toMillis(durationNanos) + "ms");
+        System.out.println("Average per entry " + averagePerQuestionNanos + "ns");
+
+        System.out.println("I'm finished!");
+        next = scanner.next();
+        System.out.println(next);
+    }
+
+
+//    @Test
+    void test_processing_using_streaming() throws IOException {
+        System.out.println("I'm ready!");
+        Scanner scanner  = new Scanner(System.in);
+        String next = scanner.next();
+
+        System.out.println(next);
+        final long start = System.nanoTime();
+        executeAndGetOutput("true", surveyFile, surveyResponseFile);
         final long end = System.nanoTime();
 
         final long durationNanos = end - start;
@@ -83,7 +126,9 @@ public class ApplicationPerfTest {
         assertThat(TimeUnit.NANOSECONDS.toMillis(durationNanos)).isLessThan(2500);
     }
 
-    private void executeAndGetOutput(final String enableStreaming) throws FileNotFoundException {
+    private static void executeAndGetOutput(final String enableStreaming,
+                                            final File surveyFile,
+                                            final File surveyResponseFile) throws FileNotFoundException {
         Application.main(
                 surveyFile.getPath(),
                 surveyResponseFile.getPath(),

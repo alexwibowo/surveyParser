@@ -9,9 +9,10 @@ import org.jetbrains.annotations.NotNull;
 public final class RatingQuestion extends BaseQuestion<RatingAnswer> {
     private static final Logger LOGGER = LogManager.getLogger(RatingQuestion.class);
 
-    public RatingQuestion(final Theme theme,
+    public RatingQuestion(final int questionIndex,
+                          final Theme theme,
                           final String sentence) {
-        super(theme, sentence);
+        super(questionIndex, theme, sentence);
     }
 
     @Override

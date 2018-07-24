@@ -9,8 +9,8 @@ class RatingQuestionTest {
 
     @Test
     void test_create() {
-        final RatingQuestion question1 = new RatingQuestion(Theme.Work, "I like the kind of work I do.");
-        final RatingQuestion question2 = new RatingQuestion(Theme.Place, "I feel empowered to get the work done for which I am responsible.");
+        final RatingQuestion question1 = new RatingQuestion(0, Theme.Work, "I like the kind of work I do.");
+        final RatingQuestion question2 = new RatingQuestion(1, Theme.Place, "I feel empowered to get the work done for which I am responsible.");
 
         assertThat(question1.theme()).isEqualTo(Theme.Work);
         assertThat(question1.sentence()).isEqualTo("I like the kind of work I do.");
@@ -20,23 +20,23 @@ class RatingQuestionTest {
 
     @Test
     void test_create_answer_with_correct_value() {
-        final RatingAnswer answer = new RatingQuestion(Theme.Work, "I like the kind of work I do.")
+        final RatingAnswer answer = new RatingQuestion(0, Theme.Work, "I like the kind of work I do.")
                 .createAnswerFrom("5");
         assertThat(answer.rating()).isEqualTo(5);
     }
 
     @Test
     void create_answer_with_non_integer_results_in_null_ratingAnswer() {
-        assertTrue(new RatingQuestion(Theme.Work, "I like the kind of work I do.")
+        assertTrue(new RatingQuestion(0, Theme.Work, "I like the kind of work I do.")
                 .createAnswerFrom("abc").isNull());
     }
 
     @Test
     void create_answer_with_invalid_ratingValue_results_in_null_ratingAnswer() {
-        assertTrue(new RatingQuestion(Theme.Work, "I like the kind of work I do.")
+        assertTrue(new RatingQuestion(0, Theme.Work, "I like the kind of work I do.")
                 .createAnswerFrom("6").isNull());
 
-        assertTrue(new RatingQuestion(Theme.Work, "I like the kind of work I do.")
+        assertTrue(new RatingQuestion(0, Theme.Work, "I like the kind of work I do.")
                 .createAnswerFrom("-1").isNull());
     }
 

@@ -11,7 +11,7 @@ class AnswerTest {
     void answerType_should_follow_questionType() {
         final IllegalStateException exception = Assertions.assertThrows(IllegalStateException.class,
                 () -> new AnswerWithWrongQuestionType(
-                        new RatingQuestion(Theme.Demographic, "This should fail"),
+                        new RatingQuestion(0, Theme.Demographic, "This should fail"),
                         "Answer to wrong question")
         );
         assertThat(exception.getMessage())

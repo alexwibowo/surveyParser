@@ -33,10 +33,10 @@ class CsvSurveyResponseReaderTest {
 
     @BeforeEach
     void setUp() {
-        iLikeMyWork = new RatingQuestion(Theme.Work, "I like the kind of work I do.");
-        iHaveResourcesToDoMyWork = new RatingQuestion(Theme.Work, "In general, I have the resources (e.g., business tools, information, facilities, IT or functional support) I need to be effective.");
-        iFeelEmpowered = new RatingQuestion(Theme.Place, "I feel empowered to get the work done for which I am responsible.");
-        whoIsMyManager = new SingleSelectQuestion(Theme.Demographic, "Manager");
+        iLikeMyWork = new RatingQuestion(0, Theme.Work, "I like the kind of work I do.");
+        iHaveResourcesToDoMyWork = new RatingQuestion(1, Theme.Work, "In general, I have the resources (e.g., business tools, information, facilities, IT or functional support) I need to be effective.");
+        iFeelEmpowered = new RatingQuestion(2, Theme.Place, "I feel empowered to get the work done for which I am responsible.");
+        whoIsMyManager = new SingleSelectQuestion(3, Theme.Demographic, "Manager");
 
         survey1 = new Survey()
                 .addQuestion(iLikeMyWork)
@@ -46,6 +46,7 @@ class CsvSurveyResponseReaderTest {
         survey2 = new Survey()
                 .addQuestion(iLikeMyWork)
                 .addQuestion(iHaveResourcesToDoMyWork)
+                .addQuestion(iFeelEmpowered)
                 .addQuestion(whoIsMyManager);
     }
 
@@ -155,8 +156,8 @@ class CsvSurveyResponseReaderTest {
     @Test
     void reading_response_with_multiple_employee() {
         final String[] rows = new String[]{
-                "employee1@abc.xyz,1,2014-07-28T20:35:41+00:00,5,4,John",
-                "employee2@abc.xyz,2,2014-07-30T23:35:41+10:00,3,1,Sally"
+                "employee1@abc.xyz,1,2014-07-28T20:35:41+00:00,5,4,1,John",
+                "employee2@abc.xyz,2,2014-07-30T23:35:41+10:00,3,1,4,Sally"
         };
 
         final CsvSurveyResponseReader csvSurveyResponseReader = new CsvSurveyResponseReader(survey2);
@@ -180,9 +181,9 @@ class CsvSurveyResponseReaderTest {
     @Test
     void same_employee_can_submit_response_multiple_time() {
         final String[] rows = new String[]{
-                "employee1@abc.xyz,1,2014-07-28T20:35:41+00:00,5,4,John",
-                "employee1@abc.xyz,1,2014-07-30T23:35:41+10:00,5,5,Sally",
-                "employee1@abc.xyz,1,2014-08-04T23:35:41+10:00,5,,Sally"
+                "employee1@abc.xyz,1,2014-07-28T20:35:41+00:00,5,4,2,John",
+                "employee1@abc.xyz,1,2014-07-30T23:35:41+10:00,5,5,1,Sally",
+                "employee1@abc.xyz,1,2014-08-04T23:35:41+10:00,5,,,Sally"
         };
 
         final CsvSurveyResponseReader csvSurveyResponseReader = new CsvSurveyResponseReader(survey2);

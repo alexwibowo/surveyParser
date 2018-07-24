@@ -21,7 +21,7 @@ class SingleSelectAnswerTest {
     @ParameterizedTest
     @ValueSource(strings = {"Sally", "John"})
     void construction_of_valid_answer(String answerValue) {
-        final SingleSelectQuestion question = new SingleSelectQuestion(Theme.Place, "Who is your manager?");
+        final SingleSelectQuestion question = new SingleSelectQuestion(0, Theme.Place, "Who is your manager?");
         final SingleSelectAnswer answer =  SingleSelectAnswer.createAnswer(question, answerValue);
 
         assertThat(answer.question()).isSameAs(question);
@@ -31,7 +31,7 @@ class SingleSelectAnswerTest {
 
     @Test
     void null_answer() {
-        final SingleSelectQuestion question = new SingleSelectQuestion(Theme.Place, "Who is your manager?");
+        final SingleSelectQuestion question = new SingleSelectQuestion(0, Theme.Place, "Who is your manager?");
         final SingleSelectAnswer answer =  SingleSelectAnswer.nullAnswer(question);
         assertTrue(answer.isNull());
     }

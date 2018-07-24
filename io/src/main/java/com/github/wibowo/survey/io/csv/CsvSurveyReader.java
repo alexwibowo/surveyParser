@@ -48,16 +48,18 @@ public final class CsvSurveyReader implements SurveyReader<InputStream> {
     static class ParsingContext {
         Metadata metadata;
         final Survey survey;
+        int questionIndex;
 
         ParsingContext() {
             survey = new Survey();
+            questionIndex = 0;
         }
 
         void processLine(final String[] columnValues) {
             if (needToReadMetadata()) {
                 readMetadata(columnValues);
             } else {
-                readQuestion(columnValues);
+                readQuestion(questionIndex++, columnValues);
             }
         }
 
@@ -79,9 +81,9 @@ public final class CsvSurveyReader implements SurveyReader<InputStream> {
             this.metadata = new Metadata(uniqueMetadataKeys);
         }
 
-        private void readQuestion(final String[] columnValues) {
+        private void readQuestion(final int questionIndex, final String[] columnValues) {
             final Metadata metadata = this.metadata;
-            this.addQuestion(metadata.parseQuestionString(columnValues));
+            this.addQuestion(metadata.parseQuestionString(questionIndex, columnValues));
         }
 
         private void addQuestion(final Question question) {
@@ -98,7 +100,7 @@ public final class CsvSurveyReader implements SurveyReader<InputStream> {
             this.columnNames = columnNames;
         }
 
-        Question parseQuestionString(final String[] columnValues) {
+        Question parseQuestionString(final int questionIndex, final String[] columnValues) {
             if (columnValues.length != columnNames.length) {
                 throw SurveyException.malformedFile(
                         String.format(
@@ -134,7 +136,7 @@ public final class CsvSurveyReader implements SurveyReader<InputStream> {
                 );
 
             }
-            return QuestionFactory.createFrom(theme, questionType, text);
+            return QuestionFactory.createFrom(questionIndex, theme, questionType, text);
         }
     }
 
