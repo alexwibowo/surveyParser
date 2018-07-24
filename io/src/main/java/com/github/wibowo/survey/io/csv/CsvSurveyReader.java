@@ -15,6 +15,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 
+/**
+ * Parser for the survey question.
+ */
 public final class CsvSurveyReader implements SurveyReader<InputStream> {
 
     @Override

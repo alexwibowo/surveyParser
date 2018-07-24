@@ -13,24 +13,26 @@ import org.apache.logging.log4j.Logger;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Objects;
+
+import static java.util.Objects.requireNonNull;
 
 public abstract class BaseCsvSurveyResponseReader implements SurveyResponseReader<InputStream> {
     private static final Logger LOGGER = LogManager.getLogger(BaseCsvSurveyResponseReader.class);
 
     protected final Survey survey;
 
-    protected BaseCsvSurveyResponseReader(Survey survey) {
-        this.survey = survey;
+    BaseCsvSurveyResponseReader(final Survey survey) {
+        this.survey = requireNonNull(survey);
     }
 
     @Override
     public SurveyResponseReader process(final InputStream source) {
-        Objects.requireNonNull(source);
+        requireNonNull(source);
+        LOGGER.info("Processing survey response");
         try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(source))) {
             bufferedReader.lines()
                     .filter(line -> !StringUtils.isBlank(line))
-                      .forEach(this::processLine);
+                    .forEach(this::processLine);
             return this;
         } catch (final SurveyException exception) {
             throw exception;
@@ -49,19 +51,16 @@ public abstract class BaseCsvSurveyResponseReader implements SurveyResponseReade
         final String[] values = stringTokenizer.getTokenArray();
         final String email = values[0];
         final String employeeID = values[1];
-        final String submittedAtAsString = values[2];
+        final String submittedAt = values[2];
 
-        onNewResponse();
         if (values.length > 3) {
+            onNewResponse(survey, email, employeeID, submittedAt);
             for (int questionOffset = 3; questionOffset < values.length; questionOffset++) {
                 final int questionIndex = questionOffset - 3;
                 final Question originalQuestion = survey.questionNumber(questionIndex);
                 final String questionAnswer = values[questionOffset];
-                onNewParticipation(
-                        survey,
-                        email,
-                        employeeID,
-                        submittedAtAsString,
+                onNewAnswerForQuestion(
+                        submittedAt,
                         originalQuestion,
                         questionAnswer
                 );
@@ -69,16 +68,31 @@ public abstract class BaseCsvSurveyResponseReader implements SurveyResponseReade
         }
     }
 
-
-    protected void onNewResponse() {
+    /**
+     * Called once per response from an employee.
+     *
+     * @param survey the survey that the response was intended for
+     * @param employeeEmail email of the employee
+     * @param employeeID ID of the employee
+     * @param submittedAt submission date
+     */
+    protected void onNewResponse(final Survey survey,
+                                 final String employeeEmail,
+                                 final String employeeID,
+                                 final String submittedAt) {
     }
 
-    protected void onNewParticipation(final Survey survey,
-                                      final String email,
-                                      final String employeeID,
-                                      final String submittedAtAsString,
-                                      final Question originalQuestion,
-                                      final String questionAnswer){
+    /**
+     * Called for every answer to a question from an employee
+     *
+     * @param submittedAt submission date of the survey
+     * @param question original question
+     * @param answer answer
+     */
+    protected void onNewAnswerForQuestion(final String submittedAt,
+                                          final Question question,
+                                          final String answer){
     }
+
 
 }

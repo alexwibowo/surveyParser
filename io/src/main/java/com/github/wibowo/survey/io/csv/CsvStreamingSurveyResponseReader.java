@@ -1,51 +1,28 @@
 package com.github.wibowo.survey.io.csv;
 
-import com.github.wibowo.survey.io.SurveyResponseReader;
 import com.github.wibowo.survey.model.Survey;
-import com.github.wibowo.survey.model.SurveyException;
 import com.github.wibowo.survey.model.SurveySummary;
 import com.github.wibowo.survey.model.questionAnswer.Question;
 import com.github.wibowo.survey.model.questionAnswer.RatingAnswer;
 import com.github.wibowo.survey.model.questionAnswer.RatingQuestion;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StringTokenizer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
-public final class CsvStreamingSurveyResponseReader implements SurveyResponseReader<InputStream> {
+/**
+ * Memory friendly survey response parser. It does not keep all responses in memory, only the accumulating response.
+ */
+public final class CsvStreamingSurveyResponseReader extends BaseCsvSurveyResponseReader {
     private static final Logger LOGGER = LogManager.getLogger(CsvStreamingSurveyResponseReader.class);
 
-    private final Survey survey;
     private final UnsafeSurveyResponse response;
 
     public CsvStreamingSurveyResponseReader(final Survey survey) {
-        this.survey = survey;
+        super(survey);
         this.response = new UnsafeSurveyResponse();
-    }
-
-    @Override
-    public CsvStreamingSurveyResponseReader process(final InputStream source) {
-        Objects.requireNonNull(source);
-        Objects.requireNonNull(survey);
-        LOGGER.info("Reading answer for survey [{}]", survey);
-
-        try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(source))) {
-            bufferedReader.lines()
-                    .filter(line -> !StringUtils.isBlank(line))
-                    .forEach( line -> processLine(line, survey, response));
-            return this;
-        } catch (final SurveyException exception) {
-            throw exception;
-        } catch (final Exception exception) {
-            throw new SurveyException("An unexpected error has occurred", exception);
-        }
     }
 
     @Override
@@ -53,27 +30,27 @@ public final class CsvStreamingSurveyResponseReader implements SurveyResponseRea
         return response;
     }
 
-    public static class UnsafeSurveyResponse implements SurveySummary {
+    private static class UnsafeSurveyResponse implements SurveySummary {
         private long totalResponse;
         private long totalParticipation;
 
         private final Map<RatingQuestion, Integer> totalRatingForQuestions;
         private final Map<RatingQuestion, Integer> numberParticipationsByQuestion;
 
-        public UnsafeSurveyResponse() {
+        private UnsafeSurveyResponse() {
             totalRatingForQuestions = new HashMap<>();
             numberParticipationsByQuestion = new HashMap<>();
         }
 
-        public void addResponse(){
+        private void addResponse(){
             totalResponse++;
         }
 
-        public void addParticipation(){
+        private void addParticipation(){
             totalParticipation++;
         }
 
-        public void addRatingForQuestion(final RatingQuestion question,
+        private void addRatingForQuestion(final RatingQuestion question,
                                          final RatingAnswer ratingAnswer) {
             final Integer currentTotalRatingForQuestion = totalRatingForQuestions.computeIfAbsent(question, ignored -> 0);
             final Integer currentNumberParticipationsForQuestion = numberParticipationsByQuestion.computeIfAbsent(question, ignored -> 0);
@@ -104,35 +81,29 @@ public final class CsvStreamingSurveyResponseReader implements SurveyResponseRea
         }
     }
 
+    protected void onNewResponse(final Survey survey,
+                                 final String employeeEmail,
+                                 final String employeeID,
+                                 final String submittedAt) {
+        LOGGER.debug("Processing response from [{}:{}] submitted at [{}]", employeeID, employeeEmail, submittedAt);
+        response.addResponse();
+        if (StringUtils.isNotBlank(submittedAt)) {
+            response.addParticipation();
+        }
+    }
 
-    private void processLine(final String line,
-                             final Survey survey,
-                             final UnsafeSurveyResponse unsafeSurveyResponse) {
-        final StringTokenizer stringTokenizer = new StringTokenizer(line, ',', '"')
-                .setIgnoreEmptyTokens(false)
-                .setEmptyTokenAsNull(false);
-        final String[] values = stringTokenizer.getTokenArray();
-        final String submittedAtAsString = values[2];
-
-        unsafeSurveyResponse.addResponse();
-        final boolean isSubmitted = StringUtils.isNotBlank(submittedAtAsString);
-        if (isSubmitted) {
-            unsafeSurveyResponse.addParticipation();
-            if (values.length > 3) {
-                for (int questionOffset = 3; questionOffset < values.length; questionOffset++) {
-                    final int questionIndex = questionOffset - 3;
-                    final Question originalQuestion = survey.questionNumber(questionIndex);
-                    final String questionAnswer = values[questionOffset];
-
-                    if (originalQuestion instanceof RatingQuestion) {
-                        final RatingQuestion ratingQuestion = (RatingQuestion) originalQuestion;
-                        final RatingAnswer answer = ratingQuestion.createAnswerFrom(questionAnswer);
-                        unsafeSurveyResponse.addRatingForQuestion(ratingQuestion, answer);
-                    }
-                }
+    @Override
+    protected void onNewAnswerForQuestion(final String submittedAt,
+                                          final Question question,
+                                          final String answerAsString) {
+        LOGGER.trace("Processing answer for question [{}], with answer [{}]", question, answerAsString);
+        if (StringUtils.isNotBlank(submittedAt)) {
+            if (question instanceof RatingQuestion) {
+                final RatingQuestion ratingQuestion = (RatingQuestion) question;
+                final RatingAnswer answer = ratingQuestion.createAnswerFrom(answerAsString);
+                response.addRatingForQuestion(ratingQuestion, answer);
             }
         }
-
     }
 
 }

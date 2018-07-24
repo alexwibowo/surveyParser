@@ -1,7 +1,7 @@
 package com.github.wibowo.survey.io.csv;
 
-import com.github.wibowo.survey.model.Survey;
 import com.github.wibowo.survey.model.EmployeeResponse;
+import com.github.wibowo.survey.model.Survey;
 import com.github.wibowo.survey.model.questionAnswer.RatingQuestion;
 import com.github.wibowo.survey.model.questionAnswer.SingleSelectQuestion;
 import com.github.wibowo.survey.model.questionAnswer.Theme;
@@ -56,7 +56,9 @@ class CsvSurveyResponseReaderTest {
                 "employee2@abc.xyz,2,2014-07-30T23:35:41+10:00,5,5,3"
         };
 
-        final List<EmployeeResponse> employeeSurveyResponse = new CsvSurveyResponseReader(survey1).parseCSVFile(inputFrom(rows));
+        final CsvSurveyResponseReader csvSurveyResponseReader = new CsvSurveyResponseReader(survey1);
+        csvSurveyResponseReader.process(inputFrom(rows));
+        final List<EmployeeResponse> employeeSurveyResponse = csvSurveyResponseReader.employeeResponses();
         assertThat(employeeSurveyResponse).hasSize(2);
 
         final EmployeeResponse firstResponse = employeeSurveyResponse.get(0);
@@ -78,7 +80,9 @@ class CsvSurveyResponseReaderTest {
                 ",1,2014-07-28T20:35:41+00:00,5,4,3"
         };
 
-        final List<EmployeeResponse> employeeSurveyResponse = new CsvSurveyResponseReader(survey1).parseCSVFile(inputFrom(rows));
+        final CsvSurveyResponseReader csvSurveyResponseReader = new CsvSurveyResponseReader(survey1);
+        csvSurveyResponseReader.process(inputFrom(rows));
+        final List<EmployeeResponse> employeeSurveyResponse = csvSurveyResponseReader.employeeResponses();
         assertThat(employeeSurveyResponse).hasSize(1);
         verifyGenericAnswer(employeeSurveyResponse.get(0), "1", "", "2014-07-28 20:35:41+0000");
     }
@@ -89,7 +93,9 @@ class CsvSurveyResponseReaderTest {
                 "employee1@abc.xyz,,2014-07-28T20:35:41+00:00,5,4,3"
         };
 
-        final List<EmployeeResponse> employeeSurveyResponse = new CsvSurveyResponseReader(survey1).parseCSVFile(inputFrom(rows));
+        final CsvSurveyResponseReader csvSurveyResponseReader = new CsvSurveyResponseReader(survey1);
+        csvSurveyResponseReader.process(inputFrom(rows));
+        final List<EmployeeResponse> employeeSurveyResponse = csvSurveyResponseReader.employeeResponses();
         assertThat(employeeSurveyResponse).hasSize(1);
 
         verifyGenericAnswer(employeeSurveyResponse.get(0), "", "employee1@abc.xyz", "2014-07-28 20:35:41+0000");
@@ -101,7 +107,9 @@ class CsvSurveyResponseReaderTest {
                 "employee1@abc.xyz,1,,5,4,3"
         };
 
-        final List<EmployeeResponse> employeeSurveyResponse = new CsvSurveyResponseReader(survey1).parseCSVFile(inputFrom(rows));
+        final CsvSurveyResponseReader csvSurveyResponseReader = new CsvSurveyResponseReader(survey1);
+        csvSurveyResponseReader.process(inputFrom(rows));
+        final List<EmployeeResponse> employeeSurveyResponse = csvSurveyResponseReader.employeeResponses();
         assertThat(employeeSurveyResponse).hasSize(1);
 
         verifyGenericAnswer(employeeSurveyResponse.get(0), "1", "employee1@abc.xyz", null);
@@ -113,7 +121,9 @@ class CsvSurveyResponseReaderTest {
                 "employee1@abc.xyz,1,2014-07-28T20:35:41+00:00,5,4,"
         };
 
-        final List<EmployeeResponse> employeeSurveyResponse = new CsvSurveyResponseReader(survey1).parseCSVFile(inputFrom(rows));
+        final CsvSurveyResponseReader csvSurveyResponseReader = new CsvSurveyResponseReader(survey1);
+        csvSurveyResponseReader.process(inputFrom(rows));
+        final List<EmployeeResponse> employeeSurveyResponse = csvSurveyResponseReader.employeeResponses();
         assertThat(employeeSurveyResponse).hasSize(1);
 
         final EmployeeResponse response = employeeSurveyResponse.get(0);
@@ -130,7 +140,9 @@ class CsvSurveyResponseReaderTest {
                 "employee1@abc.xyz,1,2014-07-28T20:35:41+00:00,5,4,3"
         };
 
-        final List<EmployeeResponse> employeeSurveyResponse = new CsvSurveyResponseReader(survey1).parseCSVFile(inputFrom(rows));
+        final CsvSurveyResponseReader csvSurveyResponseReader = new CsvSurveyResponseReader(survey1);
+        csvSurveyResponseReader.process(inputFrom(rows));
+        final List<EmployeeResponse> employeeSurveyResponse = csvSurveyResponseReader.employeeResponses();
         assertThat(employeeSurveyResponse).hasSize(1);
 
         final EmployeeResponse response = employeeSurveyResponse.get(0);
@@ -147,7 +159,9 @@ class CsvSurveyResponseReaderTest {
                 "employee2@abc.xyz,2,2014-07-30T23:35:41+10:00,3,1,Sally"
         };
 
-        final List<EmployeeResponse> employeeSurveyResponse = new CsvSurveyResponseReader(survey2).parseCSVFile(inputFrom(rows));
+        final CsvSurveyResponseReader csvSurveyResponseReader = new CsvSurveyResponseReader(survey2);
+        csvSurveyResponseReader.process(inputFrom(rows));
+        final List<EmployeeResponse> employeeSurveyResponse = csvSurveyResponseReader.employeeResponses();
         assertThat(employeeSurveyResponse).hasSize(2);
 
         final EmployeeResponse firstResponse = employeeSurveyResponse.get(0);
@@ -171,7 +185,9 @@ class CsvSurveyResponseReaderTest {
                 "employee1@abc.xyz,1,2014-08-04T23:35:41+10:00,5,,Sally"
         };
 
-        final List<EmployeeResponse> employeeSurveyResponse = new CsvSurveyResponseReader(survey2).parseCSVFile(inputFrom(rows));
+        final CsvSurveyResponseReader csvSurveyResponseReader = new CsvSurveyResponseReader(survey2);
+        csvSurveyResponseReader.process(inputFrom(rows));
+        final List<EmployeeResponse> employeeSurveyResponse = csvSurveyResponseReader.employeeResponses();
         assertThat(employeeSurveyResponse).hasSize(3);
 
         final EmployeeResponse firstResponse = employeeSurveyResponse.get(0);

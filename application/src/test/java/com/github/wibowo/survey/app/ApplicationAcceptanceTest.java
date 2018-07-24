@@ -10,7 +10,9 @@ import org.apache.logging.log4j.test.appender.ListAppender;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -56,8 +58,9 @@ public class ApplicationAcceptanceTest {
         rootLoggerConfig.removeAppender("testAppender");
     }
 
-    @Test
-    void simple_test_with_all_answered() throws IOException {
+    @ParameterizedTest
+    @ValueSource(strings = {"true", "false"})
+    void simple_test_with_all_answered(final String enableStreaming) throws IOException {
         final String question1 = "I like the kind of work I do";
         final String question2 = "In general, I have the resources (e.g., business tools, information, facilities, IT or functional support) I need to be effective.";
         final String question3 = "We are working at the right pace to meet our goals.";
@@ -82,7 +85,7 @@ public class ApplicationAcceptanceTest {
         Files.write(surveyResponseFile.toPath(), Arrays.asList(surveyResponseLines), Charset.defaultCharset());
 
 
-        final @NotNull String[] lines = executeAndGetOutput();
+        final @NotNull String[] lines = executeAndGetOutput(enableStreaming);
         verifyLineExists(lines, "Participation percentage", "Participation percentage : 100%");
         verifyLineExists(lines, "Total participation", "Total participation : 3");
         verifyLineExists(lines, question1, question1 + " : 4.67");
@@ -92,8 +95,10 @@ public class ApplicationAcceptanceTest {
         verifyLineExists(lines, question5, question5 + " : 3.67");
     }
 
-    @Test
-    void test_with_unsubmitted_response() throws IOException {
+    @ParameterizedTest
+    @ValueSource(strings = {"true", "false"})
+    @DisplayName("Test where some responses were not submitted by user.")
+    void test_with_unsubmitted_response(final String enableStreaming) throws IOException {
         final String question1 = "I like the kind of work I do";
         final String question2 = "In general, I have the resources (e.g., business tools, information, facilities, IT or functional support) I need to be effective.";
         final String question3 = "We are working at the right pace to meet our goals.";
@@ -121,7 +126,7 @@ public class ApplicationAcceptanceTest {
         Files.write(surveyResponseFile.toPath(), Arrays.asList(surveyResponseLines), Charset.defaultCharset());
 
 
-        final @NotNull String[] lines = executeAndGetOutput();
+        final @NotNull String[] lines = executeAndGetOutput(enableStreaming);
         verifyLineExists(lines, "Participation percentage", "Participation percentage : 83%"); // 5 out of 6
         verifyLineExists(lines, "Total participation", "Total participation : 5");
         verifyLineExists(lines, question1, question1 + " : " + formatRating(((double) (5 + 4 + 5 + 5 + 4)) / 5));
@@ -131,8 +136,9 @@ public class ApplicationAcceptanceTest {
         verifyLineExists(lines, question5, question5 + " : " + formatRating(((double) (4 + 3 + 4 + 4 + 3)) / 5));
     }
 
-    @Test
-    void test_with_singleSelect_question() throws IOException {
+    @ParameterizedTest
+    @ValueSource(strings = {"true", "false"})
+    void test_with_singleSelect_question(final String enableStreaming) throws IOException {
         final String question1 = "I like the kind of work I do";
         final String question2 = "In general, I have the resources (e.g., business tools, information, facilities, IT or functional support) I need to be effective.";
         final String question3 = "We are working at the right pace to meet our goals.";
@@ -158,7 +164,7 @@ public class ApplicationAcceptanceTest {
         Files.write(surveyFile.toPath(), Arrays.asList(surveyLines), Charset.defaultCharset());
         Files.write(surveyResponseFile.toPath(), Arrays.asList(surveyResponseLines), Charset.defaultCharset());
 
-        final @NotNull String[] lines = executeAndGetOutput();
+        final @NotNull String[] lines = executeAndGetOutput(enableStreaming);
         verifyLineExists(lines, "Participation percentage", "Participation percentage : 100%");
         verifyLineExists(lines, "Total participation", "Total participation : 5");
         verifyLineExists(lines, question1, question1 + " : " + formatRating(((double) (5 + 4 + 5 + 5 + 4)) / 5));
@@ -171,8 +177,9 @@ public class ApplicationAcceptanceTest {
                 .isPresent());
     }
 
-    @Test
-    void test_with_multiple_response_from_same_employee() throws IOException {
+    @ParameterizedTest
+    @ValueSource(strings = {"true", "false"})
+    void test_with_multiple_response_from_same_employee(final String enableStreaming) throws IOException {
         final String question1 = "I like the kind of work I do";
         final String question2 = "I have the resource I need to be effective.";
         final String question3 = "City";
@@ -198,7 +205,7 @@ public class ApplicationAcceptanceTest {
         Files.write(surveyFile.toPath(), Arrays.asList(surveyLines), Charset.defaultCharset());
         Files.write(surveyResponseFile.toPath(), Arrays.asList(surveyResponseLines), Charset.defaultCharset());
 
-        final @NotNull String[] lines = executeAndGetOutput();
+        final @NotNull String[] lines = executeAndGetOutput(enableStreaming);
         verifyLineExists(lines, "Participation percentage", "Participation percentage : 0%");
         verifyLineExists(lines, "Total participation", "Total participation : 0");
         verifyLineExists(lines, question1, question1 + " : N/A");
@@ -226,11 +233,11 @@ public class ApplicationAcceptanceTest {
                 .findFirst().get()).isEqualTo(lineMatcher);
     }
 
-    @NotNull
-    private String[] executeAndGetOutput() throws FileNotFoundException {
+    private String[] executeAndGetOutput(final String enableStreaming) throws FileNotFoundException {
         Application.main(
                 surveyFile.getPath(),
-                surveyResponseFile.getPath()
+                surveyResponseFile.getPath(),
+                enableStreaming
         );
 
         final List<LogEvent> events = listAppender.getEvents();

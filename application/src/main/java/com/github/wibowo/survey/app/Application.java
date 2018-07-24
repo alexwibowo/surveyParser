@@ -11,17 +11,17 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
 public final class Application {
-    private static final boolean enableStreaming = false;
 
     public static void main(final String... args) throws FileNotFoundException {
         final String surveyQuestion = args[0];
         final String surveyResponse = args[1];
+        final String enableStreaming = args[2];
 
         final CsvSurveyReader csvSurveyReader = new CsvSurveyReader();
         final Survey survey = csvSurveyReader.readFrom(new FileInputStream(surveyQuestion));
 
         final SurveySummary surveySummary;
-        if (enableStreaming) {
+        if (Boolean.parseBoolean(enableStreaming)) {
             final CsvStreamingSurveyResponseReader streamingReader = new CsvStreamingSurveyResponseReader(survey);
             surveySummary = streamingReader.process(new FileInputStream(surveyResponse)).getSummary();
         } else {
