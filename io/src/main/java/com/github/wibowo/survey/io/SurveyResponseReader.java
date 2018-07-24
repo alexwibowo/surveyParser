@@ -1,6 +1,5 @@
 package com.github.wibowo.survey.io;
 
-import com.github.wibowo.survey.model.Survey;
 import com.github.wibowo.survey.model.SurveySummary;
 
 /**
@@ -9,6 +8,7 @@ import com.github.wibowo.survey.model.SurveySummary;
  */
 public interface SurveyResponseReader<E> {
 
-    SurveySummary readFrom(E source,
-                           Survey survey);
+    SurveyResponseReader process(E source);
+
+    SurveySummary getSummary();
 }

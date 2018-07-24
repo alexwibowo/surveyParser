@@ -8,7 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringTokenizer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -16,8 +15,9 @@ import java.io.InputStreamReader;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
 
 public final class CsvSurveyResponseReader implements SurveyResponseReader<InputStream> {
     private static final Logger LOGGER = LogManager.getLogger(CsvSurveyResponseReader.class);
@@ -25,21 +25,29 @@ public final class CsvSurveyResponseReader implements SurveyResponseReader<Input
     // Alternatively: "yyyy-MM-dd'T'HH:mm:ssXXX"
     final DateTimeFormatter submittedTimeParser = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
+    private final Survey survey;
+    private List<EmployeeResponse> employeeResponses;
+
+    public CsvSurveyResponseReader(final Survey survey) {
+        this.survey = requireNonNull(survey);
+    }
+
     @Override
-    public SurveySummary readFrom(final InputStream source,
-                                  final Survey survey) {
-        Objects.requireNonNull(source);
-        Objects.requireNonNull(survey);
+    public CsvSurveyResponseReader process(final InputStream source) {
+        requireNonNull(source);
         LOGGER.info("Reading answer for survey [{}]", survey);
 
-        final List<EmployeeResponse> employeeResponses = parseCSVFile(source, survey);
+        this.employeeResponses = parseCSVFile(source);
+        return this;
+    }
+
+    public SurveySummary getSummary(){
         return SurveySummariser.summarise(survey, employeeResponses);
     }
 
-    List<EmployeeResponse> parseCSVFile(final InputStream source,
-                                        final Survey survey) {
-        Objects.requireNonNull(source);
-        Objects.requireNonNull(survey);
+
+    List<EmployeeResponse> parseCSVFile(final InputStream source) {
+        requireNonNull(source);
 
         try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(source))) {
             return bufferedReader.lines()
@@ -53,8 +61,7 @@ public final class CsvSurveyResponseReader implements SurveyResponseReader<Input
         }
     }
 
-
-    private EmployeeResponse processLine(final @NotNull String line,
+    private EmployeeResponse processLine(final String line,
                                          final Survey survey) {
         final StringTokenizer stringTokenizer = new StringTokenizer(line, ',', '"')
                 .setIgnoreEmptyTokens(false)

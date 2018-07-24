@@ -11,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringTokenizer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -23,26 +22,35 @@ import java.util.Objects;
 public final class CsvStreamingSurveyResponseReader implements SurveyResponseReader<InputStream> {
     private static final Logger LOGGER = LogManager.getLogger(CsvStreamingSurveyResponseReader.class);
 
+    private final Survey survey;
+    private final UnsafeSurveyResponse response;
+
+    public CsvStreamingSurveyResponseReader(final Survey survey) {
+        this.survey = survey;
+        this.response = new UnsafeSurveyResponse();
+    }
+
     @Override
-    public SurveySummary readFrom(final InputStream source,
-                                         final Survey survey) {
+    public CsvStreamingSurveyResponseReader process(final InputStream source) {
         Objects.requireNonNull(source);
         Objects.requireNonNull(survey);
         LOGGER.info("Reading answer for survey [{}]", survey);
 
-        final UnsafeSurveyResponse response = new UnsafeSurveyResponse();
         try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(source))) {
             bufferedReader.lines()
                     .filter(line -> !StringUtils.isBlank(line))
-                    .forEach( line -> {
-                        processLine(line, survey, response);
-                    });
-            return response;
+                    .forEach( line -> processLine(line, survey, response));
+            return this;
         } catch (final SurveyException exception) {
             throw exception;
         } catch (final Exception exception) {
             throw new SurveyException("An unexpected error has occurred", exception);
         }
+    }
+
+    @Override
+    public SurveySummary getSummary(){
+        return response;
     }
 
     public static class UnsafeSurveyResponse implements SurveySummary {
@@ -57,25 +65,22 @@ public final class CsvStreamingSurveyResponseReader implements SurveyResponseRea
             numberParticipationsByQuestion = new HashMap<>();
         }
 
-        public UnsafeSurveyResponse addResponse(){
+        public void addResponse(){
             totalResponse++;
-            return this;
         }
 
-        public UnsafeSurveyResponse addParticipation(){
+        public void addParticipation(){
             totalParticipation++;
-            return this;
         }
 
-        public UnsafeSurveyResponse addRatingForQuestion(final RatingQuestion question,
-                                                         final RatingAnswer ratingAnswer) {
+        public void addRatingForQuestion(final RatingQuestion question,
+                                         final RatingAnswer ratingAnswer) {
             final Integer currentTotalRatingForQuestion = totalRatingForQuestions.computeIfAbsent(question, ignored -> 0);
             final Integer currentNumberParticipationsForQuestion = numberParticipationsByQuestion.computeIfAbsent(question, ignored -> 0);
             if (!ratingAnswer.isNull()) {
                 totalRatingForQuestions.put(question, currentTotalRatingForQuestion + ratingAnswer.rating());
                 numberParticipationsByQuestion.put(question, currentNumberParticipationsForQuestion + 1);
             }
-            return this;
         }
 
         @Override
@@ -100,7 +105,7 @@ public final class CsvStreamingSurveyResponseReader implements SurveyResponseRea
     }
 
 
-    private void processLine(final @NotNull String line,
+    private void processLine(final String line,
                              final Survey survey,
                              final UnsafeSurveyResponse unsafeSurveyResponse) {
         final StringTokenizer stringTokenizer = new StringTokenizer(line, ',', '"')
@@ -117,9 +122,10 @@ public final class CsvStreamingSurveyResponseReader implements SurveyResponseRea
                 for (int questionOffset = 3; questionOffset < values.length; questionOffset++) {
                     final int questionIndex = questionOffset - 3;
                     final Question originalQuestion = survey.questionNumber(questionIndex);
+                    final String questionAnswer = values[questionOffset];
+
                     if (originalQuestion instanceof RatingQuestion) {
                         final RatingQuestion ratingQuestion = (RatingQuestion) originalQuestion;
-                        final String questionAnswer = values[questionOffset];
                         final RatingAnswer answer = ratingQuestion.createAnswerFrom(questionAnswer);
                         unsafeSurveyResponse.addRatingForQuestion(ratingQuestion, answer);
                     }

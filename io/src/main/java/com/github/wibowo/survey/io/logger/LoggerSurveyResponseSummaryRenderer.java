@@ -15,7 +15,8 @@ import java.text.NumberFormat;
 public final class LoggerSurveyResponseSummaryRenderer implements SurveyResponseSummaryRenderer {
     public static final Logger LOGGER = LogManager.getLogger(LoggerSurveyResponseSummaryRenderer.class);
 
-    public void render(Survey survey, final SurveySummary summary) {
+    @Override
+    public void render(final Survey survey, final SurveySummary summary) {
         final NumberFormat percentFormat = DecimalFormat.getPercentInstance();
         LOGGER.info("=======================================");
         LOGGER.info("Participation percentage : {}", percentFormat.format(summary.getParticipationPercentage()));

@@ -39,4 +39,6 @@ public final class RatingQuestion extends BaseQuestion<RatingAnswer> {
         return RatingAnswer.nullAnswer(this);
     }
 
+
+
 }
