@@ -1,12 +1,11 @@
 package com.github.wibowo.survey.model;
 
-import com.github.wibowo.survey.model.questionAnswer.Question;
 import com.github.wibowo.survey.model.questionAnswer.RatingQuestion;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public final class SurveyResponseSummary {
+public final class DefaultSurveyResponseSummary implements SurveySummary{
 
     private final Survey survey;
 
@@ -16,16 +15,13 @@ public final class SurveyResponseSummary {
 
     private long numberOfParticipations;
 
-    public SurveyResponseSummary(final Survey survey) {
+    public DefaultSurveyResponseSummary(final Survey survey) {
         this.survey = survey;
         this.ratingAverageByQuestion = new HashMap<>();
     }
 
-    public Iterable<Question> getQuestions() {
-        return survey.questions();
-    }
-
-    public double getParticipationPercentage() {
+    @Override
+    public double participationPercentage() {
         return participationPercentage;
     }
 
@@ -33,7 +29,8 @@ public final class SurveyResponseSummary {
         this.participationPercentage = participationPercentage;
     }
 
-    public long getNumberOfParticipations() {
+    @Override
+    public long totalParticipation() {
         return numberOfParticipations;
     }
 
@@ -46,6 +43,7 @@ public final class SurveyResponseSummary {
         ratingAverageByQuestion.put(ratingQuestion, average);
     }
 
+    @Override
     public double averageRatingFor(final RatingQuestion ratingQuestion) {
         return ratingAverageByQuestion.get(ratingQuestion);
     }

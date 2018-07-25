@@ -1,6 +1,5 @@
-package com.github.wibowo.survey.io.csv;
+package com.github.wibowo.survey.io.parser.question;
 
-import com.github.wibowo.survey.io.SurveyReader;
 import com.github.wibowo.survey.model.Survey;
 import com.github.wibowo.survey.model.SurveyException;
 import com.github.wibowo.survey.model.questionAnswer.Question;
@@ -8,6 +7,8 @@ import com.github.wibowo.survey.model.questionAnswer.QuestionFactory;
 import com.github.wibowo.survey.model.questionAnswer.Theme;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringTokenizer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
@@ -15,11 +16,20 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 
+import static java.util.Objects.requireNonNull;
+
+/**
+ * Parser for the survey question.
+ */
 public final class CsvSurveyReader implements SurveyReader<InputStream> {
+    private static final Logger LOGGER = LogManager.getLogger(CsvSurveyReader.class);
+    private static final char DELIMITER_CHARACTER = ',';
+    private static final char ESCAPE_CHARACTER = '"';
 
     @Override
     public Survey readFrom(final InputStream source) {
-
+        requireNonNull(source);
+        LOGGER.info("Reading Survey from input source");
         try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(source))) {
             final ParsingContext context = new ParsingContext();
 
@@ -38,23 +48,25 @@ public final class CsvSurveyReader implements SurveyReader<InputStream> {
 
     private void processLine(final ParsingContext context,
                              final @NotNull String line) {
-        final StringTokenizer stringTokenizer = new StringTokenizer(line, ',', '"');
+        final StringTokenizer stringTokenizer = new StringTokenizer(line, DELIMITER_CHARACTER, ESCAPE_CHARACTER);
         context.processLine(stringTokenizer.getTokenArray());
     }
 
     static class ParsingContext {
         Metadata metadata;
         final Survey survey;
+        int questionIndex;
 
         ParsingContext() {
             survey = new Survey();
+            questionIndex = 0;
         }
 
         void processLine(final String[] columnValues) {
             if (needToReadMetadata()) {
                 readMetadata(columnValues);
             } else {
-                readQuestion(columnValues);
+                readQuestion(questionIndex++, columnValues);
             }
         }
 
@@ -76,9 +88,9 @@ public final class CsvSurveyReader implements SurveyReader<InputStream> {
             this.metadata = new Metadata(uniqueMetadataKeys);
         }
 
-        private void readQuestion(final String[] columnValues) {
+        private void readQuestion(final int questionIndex, final String[] columnValues) {
             final Metadata metadata = this.metadata;
-            this.addQuestion(metadata.parseQuestionString(columnValues));
+            this.addQuestion(metadata.parseQuestionString(questionIndex, columnValues));
         }
 
         private void addQuestion(final Question question) {
@@ -95,7 +107,7 @@ public final class CsvSurveyReader implements SurveyReader<InputStream> {
             this.columnNames = columnNames;
         }
 
-        Question parseQuestionString(final String[] columnValues) {
+        Question parseQuestionString(final int questionIndex, final String[] columnValues) {
             if (columnValues.length != columnNames.length) {
                 throw SurveyException.malformedFile(
                         String.format(
@@ -131,7 +143,7 @@ public final class CsvSurveyReader implements SurveyReader<InputStream> {
                 );
 
             }
-            return QuestionFactory.createFrom(theme, questionType, text);
+            return QuestionFactory.createFrom(questionIndex, theme, questionType, text);
         }
     }
 

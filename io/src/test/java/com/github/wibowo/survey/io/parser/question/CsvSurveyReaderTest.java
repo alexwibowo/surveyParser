@@ -1,4 +1,4 @@
-package com.github.wibowo.survey.io.csv;
+package com.github.wibowo.survey.io.parser.question;
 
 import com.github.wibowo.survey.model.Survey;
 import com.github.wibowo.survey.model.SurveyException;
@@ -18,9 +18,9 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-class CsvFileSurveyReaderTest {
+class CsvSurveyReaderTest {
 
     @Test
     void reject_file_with_duplicated_column() {
