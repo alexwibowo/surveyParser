@@ -8,6 +8,8 @@ import com.github.wibowo.survey.model.questionAnswer.QuestionFactory;
 import com.github.wibowo.survey.model.questionAnswer.Theme;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringTokenizer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
@@ -15,14 +17,20 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * Parser for the survey question.
  */
 public final class CsvSurveyReader implements SurveyReader<InputStream> {
+    private static final Logger LOGGER = LogManager.getLogger(CsvSurveyReader.class);
+    private static final char DELIMITER_CHARACTER = ',';
+    private static final char ESCAPE_CHARACTER = '"';
 
     @Override
     public Survey readFrom(final InputStream source) {
-
+        requireNonNull(source);
+        LOGGER.info("Reading Survey from input source");
         try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(source))) {
             final ParsingContext context = new ParsingContext();
 
@@ -41,7 +49,7 @@ public final class CsvSurveyReader implements SurveyReader<InputStream> {
 
     private void processLine(final ParsingContext context,
                              final @NotNull String line) {
-        final StringTokenizer stringTokenizer = new StringTokenizer(line, ',', '"');
+        final StringTokenizer stringTokenizer = new StringTokenizer(line, DELIMITER_CHARACTER, ESCAPE_CHARACTER);
         context.processLine(stringTokenizer.getTokenArray());
     }
 

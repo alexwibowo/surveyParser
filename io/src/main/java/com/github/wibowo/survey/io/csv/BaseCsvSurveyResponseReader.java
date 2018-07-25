@@ -30,7 +30,7 @@ public abstract class BaseCsvSurveyResponseReader implements SurveyResponseReade
     @Override
     public SurveyResponseReader process(final InputStream source) {
         requireNonNull(source);
-        LOGGER.info("Processing survey response");
+        LOGGER.info("Processing survey response from input source");
         try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(source))) {
             bufferedReader.lines()
                     .filter(line -> !StringUtils.isBlank(line))
