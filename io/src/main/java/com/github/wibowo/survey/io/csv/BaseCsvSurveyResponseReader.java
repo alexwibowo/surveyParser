@@ -18,6 +18,8 @@ import static java.util.Objects.requireNonNull;
 
 public abstract class BaseCsvSurveyResponseReader implements SurveyResponseReader<InputStream> {
     private static final Logger LOGGER = LogManager.getLogger(BaseCsvSurveyResponseReader.class);
+    private static final char DELIMITER_CHARACTER = ',';
+    private static final char ESCAPE_CHARACTER = '"';
 
     protected final Survey survey;
 
@@ -45,7 +47,7 @@ public abstract class BaseCsvSurveyResponseReader implements SurveyResponseReade
     public abstract SurveySummary getSummary();
 
     private void processLine(final String line) {
-        final StringTokenizer stringTokenizer = new StringTokenizer(line, ',', '"')
+        final StringTokenizer stringTokenizer = new StringTokenizer(line, DELIMITER_CHARACTER, ESCAPE_CHARACTER)
                 .setIgnoreEmptyTokens(false)
                 .setEmptyTokenAsNull(false);
         final String[] values = stringTokenizer.getTokenArray();

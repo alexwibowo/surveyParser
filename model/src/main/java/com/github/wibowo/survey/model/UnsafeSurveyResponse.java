@@ -40,12 +40,12 @@ public class UnsafeSurveyResponse implements SurveySummary {
     }
 
     @Override
-    public double getParticipationPercentage() {
+    public double participationPercentage() {
         return ((double) totalParticipation) / totalResponse;
     }
 
     @Override
-    public long getNumberOfParticipations(){
+    public long numberOfSurveyResponses(){
         return totalParticipation;
     }
 

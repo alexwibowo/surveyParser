@@ -21,7 +21,7 @@ public final class DefaultSurveyResponseSummary implements SurveySummary{
     }
 
     @Override
-    public double getParticipationPercentage() {
+    public double participationPercentage() {
         return participationPercentage;
     }
 
@@ -30,7 +30,7 @@ public final class DefaultSurveyResponseSummary implements SurveySummary{
     }
 
     @Override
-    public long getNumberOfParticipations() {
+    public long numberOfSurveyResponses() {
         return numberOfParticipations;
     }
 

@@ -34,6 +34,10 @@ public final class CsvStreamingSurveyResponseReader extends BaseCsvSurveyRespons
         return response;
     }
 
+    /**
+     * Mutable implementation of {@link SurveySummary}. It is used to accumulate the statistics at the same time
+     * the survey response is being processed.
+     */
     private static class UnsafeSurveyResponse implements SurveySummary {
         private long totalResponse;
         private long totalParticipation;
@@ -77,12 +81,12 @@ public final class CsvStreamingSurveyResponseReader extends BaseCsvSurveyRespons
         }
 
         @Override
-        public double getParticipationPercentage() {
+        public double participationPercentage() {
             return ((double) totalParticipation) / totalResponse;
         }
 
         @Override
-        public long getNumberOfParticipations(){
+        public long numberOfSurveyResponses(){
             return totalParticipation;
         }
 

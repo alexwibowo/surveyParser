@@ -1,7 +1,6 @@
 package com.github.wibowo.survey.io.logger;
 
 import com.github.wibowo.survey.io.SurveyResponseSummaryRenderer;
-import com.github.wibowo.survey.model.DefaultSurveyResponseSummary;
 import com.github.wibowo.survey.model.Survey;
 import com.github.wibowo.survey.model.SurveySummary;
 import com.github.wibowo.survey.model.questionAnswer.Question;
@@ -19,8 +18,8 @@ public final class LoggerSurveyResponseSummaryRenderer implements SurveyResponse
     public void render(final Survey survey, final SurveySummary summary) {
         final NumberFormat percentFormat = DecimalFormat.getPercentInstance();
         LOGGER.info("=======================================");
-        LOGGER.info("Participation percentage : {}", percentFormat.format(summary.getParticipationPercentage()));
-        LOGGER.info("Total participation : {}", summary.getNumberOfParticipations());
+        LOGGER.info("Participation percentage : {}", percentFormat.format(summary.participationPercentage()));
+        LOGGER.info("Total participation : {}", summary.numberOfSurveyResponses());
         LOGGER.info("=======================================");
         final NumberFormat ratingFormat = new DecimalFormat("0.00");
         for (final Question question : survey.questions()) {
