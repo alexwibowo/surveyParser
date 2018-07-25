@@ -1,4 +1,17 @@
 apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenLocal()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "com.github.jengelman.gradle.plugins:shadow:${shadowPluginVersion}"
+    }
+}
 
 dependencies {
     compile project(":model")
@@ -6,4 +19,10 @@ dependencies {
     compile group: 'args4j', name: 'args4j', version: "${args4jVersion}"
 
     testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', version: "${log4j2Version}", classifier: "tests"
+}
+
+jar {
+    manifest {
+        attributes "Main-Class": "com.github.wibowo.survey.app.Application"
+    }
 }
