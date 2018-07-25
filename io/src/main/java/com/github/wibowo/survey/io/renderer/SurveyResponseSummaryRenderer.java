@@ -1,4 +1,4 @@
-package com.github.wibowo.survey.io;
+package com.github.wibowo.survey.io.renderer;
 
 import com.github.wibowo.survey.model.Survey;
 import com.github.wibowo.survey.model.SurveySummary;

@@ -1,4 +1,4 @@
-package com.github.wibowo.survey.io;
+package com.github.wibowo.survey.io.parser.question;
 
 import com.github.wibowo.survey.model.Survey;
 

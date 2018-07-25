@@ -1,9 +1,9 @@
 package com.github.wibowo.survey.app;
 
-import com.github.wibowo.survey.io.csv.CsvStreamingSurveyResponseReader;
-import com.github.wibowo.survey.io.csv.CsvSurveyReader;
-import com.github.wibowo.survey.io.csv.CsvSurveyResponseReader;
-import com.github.wibowo.survey.io.logger.LoggerSurveyResponseSummaryRenderer;
+import com.github.wibowo.survey.io.parser.response.CsvStreamingSurveyResponseReader;
+import com.github.wibowo.survey.io.parser.question.CsvSurveyReader;
+import com.github.wibowo.survey.io.parser.response.CsvSurveyResponseReader;
+import com.github.wibowo.survey.io.renderer.LoggerSurveyResponseSummaryRenderer;
 import com.github.wibowo.survey.model.Survey;
 import com.github.wibowo.survey.model.SurveySummary;
 import org.apache.logging.log4j.LogManager;

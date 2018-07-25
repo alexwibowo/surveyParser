@@ -1,6 +1,5 @@
-package com.github.wibowo.survey.io.csv;
+package com.github.wibowo.survey.io.parser.response;
 
-import com.github.wibowo.survey.io.SurveyResponseReader;
 import com.github.wibowo.survey.model.Survey;
 import com.github.wibowo.survey.model.SurveyException;
 import com.github.wibowo.survey.model.SurveySummary;

@@ -1,6 +1,5 @@
-package com.github.wibowo.survey.io.logger;
+package com.github.wibowo.survey.io.renderer;
 
-import com.github.wibowo.survey.io.SurveyResponseSummaryRenderer;
 import com.github.wibowo.survey.model.Survey;
 import com.github.wibowo.survey.model.SurveySummary;
 import com.github.wibowo.survey.model.questionAnswer.Question;
@@ -11,6 +10,9 @@ import org.apache.logging.log4j.Logger;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
+/**
+ * Implementation of {@link SurveyResponseSummaryRenderer} that simply logs the result to {@link Logger}
+ */
 public final class LoggerSurveyResponseSummaryRenderer implements SurveyResponseSummaryRenderer {
     public static final Logger LOGGER = LogManager.getLogger(LoggerSurveyResponseSummaryRenderer.class);
 

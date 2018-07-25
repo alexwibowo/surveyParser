@@ -1,4 +1,4 @@
-package com.github.wibowo.survey.io.csv;
+package com.github.wibowo.survey.io.parser.response;
 
 import com.github.wibowo.survey.io.SurveySummariser;
 import com.github.wibowo.survey.model.Employee;
