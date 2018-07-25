@@ -37,18 +37,28 @@ public final class CsvStreamingSurveyResponseReader extends BaseCsvSurveyRespons
      * the survey response is being processed.
      */
     private static class UnsafeSurveyResponse implements SurveySummary {
+        /**
+         * Value to indicate that there is no response / no response required for a given question
+         * <ul>
+         *     <li>for rating question, it means no response was provided</li>
+         *     <li>for singleselect question, it means no response is required</li>
+         * </ul>
+         */
+        public static final int NULL_RATING_RESPONSE = Integer.MIN_VALUE;
         private long totalResponse;
         private long totalParticipation;
 
         private final int[] totalRatingForQuestions;
         private final int[] numberParticipationsByQuestion;
+        private final Survey survey;
 
         private UnsafeSurveyResponse(final Survey survey) {
             final List<Question> collect = StreamSupport.stream(survey.questions().spliterator(), false).collect(Collectors.toList());
+            this.survey = survey;
             totalRatingForQuestions = new int[collect.size()];
             numberParticipationsByQuestion = new int[collect.size()];
-            Arrays.fill(totalRatingForQuestions, Integer.MIN_VALUE);
-            Arrays.fill(numberParticipationsByQuestion, Integer.MIN_VALUE);
+            Arrays.fill(totalRatingForQuestions, NULL_RATING_RESPONSE);
+            Arrays.fill(numberParticipationsByQuestion, NULL_RATING_RESPONSE);
         }
 
         private void addResponse(){
@@ -61,11 +71,13 @@ public final class CsvStreamingSurveyResponseReader extends BaseCsvSurveyRespons
 
         private void addRatingForQuestion(final RatingQuestion question,
                                          final RatingAnswer ratingAnswer) {
-            int currentTotalRatingForQuestion = totalRatingForQuestions[question.questionIndex()] == Integer.MIN_VALUE ? 0 : totalRatingForQuestions[question.questionIndex()];
-            int currentNumberParticipantsForQuestion = numberParticipationsByQuestion[question.questionIndex()] == Integer.MIN_VALUE ? 0 : numberParticipationsByQuestion[question.questionIndex()];
+            final int questionIndex = survey.indexForQuestion(question);
+            final int fastQuestionIndex = question.questionIndex();
+            int currentTotalRatingForQuestion = totalRatingForQuestions[questionIndex] == NULL_RATING_RESPONSE ? 0 : totalRatingForQuestions[questionIndex];
+            int currentNumberParticipantsForQuestion = numberParticipationsByQuestion[questionIndex] == NULL_RATING_RESPONSE ? 0 : numberParticipationsByQuestion[questionIndex];
             if (!ratingAnswer.isNull()) {
-                totalRatingForQuestions[question.questionIndex()] = currentTotalRatingForQuestion + ratingAnswer.rating();
-                numberParticipationsByQuestion[question.questionIndex()] = currentNumberParticipantsForQuestion + 1;
+                totalRatingForQuestions[questionIndex] = currentTotalRatingForQuestion + ratingAnswer.rating();
+                numberParticipationsByQuestion[questionIndex] = currentNumberParticipantsForQuestion + 1;
             }
         }
 
@@ -81,9 +93,11 @@ public final class CsvStreamingSurveyResponseReader extends BaseCsvSurveyRespons
 
         @Override
         public double averageRatingFor(final RatingQuestion ratingQuestion) {
-            final int totalRatings = totalRatingForQuestions[ratingQuestion.questionIndex()];
-            final int numberOfParticipations = numberParticipationsByQuestion[ratingQuestion.questionIndex()];
-            if (numberOfParticipations == Integer.MIN_VALUE) {
+            final int fastQuestionIndex = ratingQuestion.questionIndex();
+            final int questionIndex = survey.indexForQuestion(ratingQuestion);
+            final int totalRatings = totalRatingForQuestions[questionIndex];
+            final int numberOfParticipations = numberParticipationsByQuestion[questionIndex];
+            if (numberOfParticipations == NULL_RATING_RESPONSE) {
                 return Double.NaN;
             }
             return ((double) totalRatings) / numberOfParticipations;

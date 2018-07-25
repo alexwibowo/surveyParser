@@ -4,6 +4,7 @@ import com.github.wibowo.survey.model.questionAnswer.Question;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public final class Survey {
 
@@ -18,7 +19,7 @@ public final class Survey {
      * @return this survey
      */
     public Survey addQuestion(final Question newQuestion) {
-        this.questions.add(newQuestion);
+        this.questions.add(Objects.requireNonNull(newQuestion));
         return this;
     }
 
@@ -43,6 +44,23 @@ public final class Survey {
         }
         return questions.get(index);
     }
+
+    /**
+     * @param question question to find index for
+     * @return index of the question in the survey. Index is 0-based
+     */
+    public int indexForQuestion(final Question question) {
+        Objects.requireNonNull(question);
+        for (int i = 0; i < questions.size(); i++) {
+            Question question1 = questions.get(i);
+            if (Objects.equals(question, question1)) {
+                return i;
+            }
+        }
+        throw new IllegalArgumentException(String.format("Question %s was not found in the survey %s", question, questions));
+    }
+
+
 
     @Override
     public String toString() {
