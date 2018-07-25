@@ -3,6 +3,7 @@ apply plugin: 'java'
 dependencies {
     compile project(":model")
     compile project(":io")
+    compile group: 'args4j', name: 'args4j', version: "${args4jVersion}"
 
     testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', version: "${log4j2Version}", classifier: "tests"
 }

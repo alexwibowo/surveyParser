@@ -129,10 +129,10 @@ public class ApplicationPerfTest {
     private static void executeAndGetOutput(final String enableStreaming,
                                             final File surveyFile,
                                             final File surveyResponseFile) throws FileNotFoundException {
-        Application.main(
-                surveyFile.getPath(),
-                surveyResponseFile.getPath(),
-                enableStreaming
-        );
+        new Application(new ArgumentsBean()
+                .setQuestionFile(surveyFile.getPath())
+                .setResponseFile(surveyResponseFile.getPath())
+                .setEnableStreamingMode(Boolean.parseBoolean(enableStreaming))
+        ).doWork();
     }
 }

@@ -234,12 +234,11 @@ public class ApplicationAcceptanceTest {
     }
 
     private String[] executeAndGetOutput(final String enableStreaming) throws FileNotFoundException {
-        Application.main(
-                surveyFile.getPath(),
-                surveyResponseFile.getPath(),
-                enableStreaming
-        );
-
+        new Application(new ArgumentsBean()
+                .setQuestionFile(surveyFile.getPath())
+                .setResponseFile(surveyResponseFile.getPath())
+                .setEnableStreamingMode(Boolean.parseBoolean(enableStreaming))
+        ).doWork();
         final List<LogEvent> events = listAppender.getEvents();
         return events.stream().map(LogEvent::getMessage).map(Message::getFormattedMessage)
                 .toArray(String[]::new);
