@@ -30,7 +30,7 @@ public final class DefaultSurveyResponseSummary implements SurveySummary{
     }
 
     @Override
-    public long numberOfSurveyResponses() {
+    public long totalParticipation() {
         return numberOfParticipations;
     }
 

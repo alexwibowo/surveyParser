@@ -1,8 +1,8 @@
 package com.github.wibowo.survey.io.parser.response;
 
-import com.github.wibowo.survey.io.parser.response.CsvSurveyResponseReader;
 import com.github.wibowo.survey.model.EmployeeResponse;
 import com.github.wibowo.survey.model.Survey;
+import com.github.wibowo.survey.model.SurveySummary;
 import com.github.wibowo.survey.model.questionAnswer.RatingQuestion;
 import com.github.wibowo.survey.model.questionAnswer.SingleSelectQuestion;
 import com.github.wibowo.survey.model.questionAnswer.Theme;
@@ -74,6 +74,28 @@ class CsvSurveyResponseReaderTest {
         assertThat(secondResponse.answerFor(iLikeMyWork).rating()).isEqualTo(5);
         assertThat(secondResponse.answerFor(iHaveResourcesToDoMyWork).rating()).isEqualTo(5);
         assertThat(secondResponse.answerFor(iFeelEmpowered).rating()).isEqualTo(3);
+
+        final SurveySummary csvReaderResult = csvSurveyResponseReader.getSummary();
+
+        // compare result to streaming version
+        final CsvStreamingSurveyResponseReader streamingReader = new CsvStreamingSurveyResponseReader(survey1);
+        streamingReader.process(inputFrom(rows));
+        final SurveySummary streamingCsvReaderResult = streamingReader.getSummary();
+        assertThat(streamingCsvReaderResult.totalParticipation())
+                .isEqualTo(csvReaderResult.totalParticipation())
+                .isEqualTo(2);
+        assertThat(streamingCsvReaderResult.participationPercentage())
+                .isEqualTo(csvReaderResult.participationPercentage())
+                .isEqualTo(1.0);
+        assertThat(streamingCsvReaderResult.averageRatingFor(iLikeMyWork))
+                .isEqualTo(csvReaderResult.averageRatingFor(iLikeMyWork))
+                .isEqualTo(5.0);
+        assertThat(streamingCsvReaderResult.averageRatingFor(iHaveResourcesToDoMyWork))
+                .isEqualTo(csvReaderResult.averageRatingFor(iHaveResourcesToDoMyWork))
+                .isEqualTo(4.5);
+        assertThat(streamingCsvReaderResult.averageRatingFor(iFeelEmpowered))
+                .isEqualTo(csvReaderResult.averageRatingFor(iFeelEmpowered))
+                .isEqualTo(3.0);
     }
 
     @Test
@@ -87,6 +109,17 @@ class CsvSurveyResponseReaderTest {
         final List<EmployeeResponse> employeeSurveyResponse = csvSurveyResponseReader.employeeResponses();
         assertThat(employeeSurveyResponse).hasSize(1);
         verifyGenericAnswer(employeeSurveyResponse.get(0), "1", "", "2014-07-28 20:35:41+0000");
+
+        final SurveySummary csvReaderResult = csvSurveyResponseReader.getSummary();
+
+        // compare result to streaming version
+        final CsvStreamingSurveyResponseReader streamingReader = new CsvStreamingSurveyResponseReader(survey1);
+        streamingReader.process(inputFrom(rows));
+
+        final SurveySummary streamingCsvReaderResult = streamingReader.getSummary();
+        assertThat(streamingCsvReaderResult.totalParticipation())
+                .isEqualTo(csvReaderResult.totalParticipation())
+                .isEqualTo(1);
     }
 
     @Test
@@ -115,6 +148,29 @@ class CsvSurveyResponseReaderTest {
         assertThat(employeeSurveyResponse).hasSize(1);
 
         verifyGenericAnswer(employeeSurveyResponse.get(0), "1", "employee1@abc.xyz", null);
+
+        final SurveySummary csvReaderResult = csvSurveyResponseReader.getSummary();
+
+        // compare result to streaming version
+        final CsvStreamingSurveyResponseReader streamingReader = new CsvStreamingSurveyResponseReader(survey1);
+        streamingReader.process(inputFrom(rows));
+
+        final SurveySummary streamingCsvReaderResult = streamingReader.getSummary();
+        assertThat(streamingCsvReaderResult.totalParticipation())
+                .isEqualTo(csvReaderResult.totalParticipation())
+                .isEqualTo(0);
+        assertThat(streamingCsvReaderResult.participationPercentage())
+                .isEqualTo(csvReaderResult.participationPercentage())
+                .isEqualTo(0);
+        assertThat(streamingCsvReaderResult.averageRatingFor(iLikeMyWork))
+                .isEqualTo(csvReaderResult.averageRatingFor(iLikeMyWork))
+                .isEqualTo(Double.NaN);
+        assertThat(streamingCsvReaderResult.averageRatingFor(iHaveResourcesToDoMyWork))
+                .isEqualTo(csvReaderResult.averageRatingFor(iHaveResourcesToDoMyWork))
+                .isEqualTo(Double.NaN);
+        assertThat(streamingCsvReaderResult.averageRatingFor(iFeelEmpowered))
+                .isEqualTo(csvReaderResult.averageRatingFor(iFeelEmpowered))
+                .isEqualTo(Double.NaN);
     }
 
     @Test
@@ -177,6 +233,29 @@ class CsvSurveyResponseReaderTest {
         assertThat(secondResponse.answerFor(iLikeMyWork).rating()).isEqualTo(3);
         assertThat(secondResponse.answerFor(iHaveResourcesToDoMyWork).rating()).isEqualTo(1);
         assertThat(secondResponse.answerFor(whoIsMyManager).selection()).isEqualTo("Sally");
+
+        final SurveySummary csvReaderResult = csvSurveyResponseReader.getSummary();
+
+        // compare result to streaming version
+        final CsvStreamingSurveyResponseReader streamingReader = new CsvStreamingSurveyResponseReader(survey2);
+        streamingReader.process(inputFrom(rows));
+
+        final SurveySummary streamingCsvReaderResult = streamingReader.getSummary();
+        assertThat(streamingCsvReaderResult.totalParticipation())
+                .isEqualTo(csvReaderResult.totalParticipation())
+                .isEqualTo(2);
+        assertThat(streamingCsvReaderResult.participationPercentage())
+                .isEqualTo(csvReaderResult.participationPercentage())
+                .isEqualTo(1.0);
+        assertThat(streamingCsvReaderResult.averageRatingFor(iLikeMyWork))
+                .isEqualTo(csvReaderResult.averageRatingFor(iLikeMyWork))
+                .isEqualTo(4.0);
+        assertThat(streamingCsvReaderResult.averageRatingFor(iHaveResourcesToDoMyWork))
+                .isEqualTo(csvReaderResult.averageRatingFor(iHaveResourcesToDoMyWork))
+                .isEqualTo(2.5);
+        assertThat(streamingCsvReaderResult.averageRatingFor(iFeelEmpowered))
+                .isEqualTo(csvReaderResult.averageRatingFor(iFeelEmpowered))
+                .isEqualTo(2.5);
     }
 
     @Test
@@ -209,6 +288,30 @@ class CsvSurveyResponseReaderTest {
         assertThat(thirdResponse.answerFor(iLikeMyWork).rating()).isEqualTo(5);
         assertTrue(thirdResponse.answerFor(iHaveResourcesToDoMyWork).isNull());
         assertThat(thirdResponse.answerFor(whoIsMyManager).selection()).isEqualTo("Sally");
+
+        final SurveySummary csvReaderResult = csvSurveyResponseReader.getSummary();
+
+        // compare result to streaming version
+        final CsvStreamingSurveyResponseReader streamingReader = new CsvStreamingSurveyResponseReader(survey2);
+        streamingReader.process(inputFrom(rows));
+
+        final SurveySummary streamingCsvReaderResult = streamingReader.getSummary();
+        assertThat(streamingCsvReaderResult.totalParticipation())
+                .isEqualTo(csvReaderResult.totalParticipation())
+                .isEqualTo(3);
+        assertThat(streamingCsvReaderResult.participationPercentage())
+                .isEqualTo(csvReaderResult.participationPercentage())
+                .isEqualTo(1.0);
+        assertThat(streamingCsvReaderResult.averageRatingFor(iLikeMyWork))
+                .isEqualTo(csvReaderResult.averageRatingFor(iLikeMyWork))
+                .isEqualTo(5.0);
+        assertThat(streamingCsvReaderResult.averageRatingFor(iHaveResourcesToDoMyWork))
+                .isEqualTo(csvReaderResult.averageRatingFor(iHaveResourcesToDoMyWork))
+                .isEqualTo(4.5);
+        assertThat(streamingCsvReaderResult.averageRatingFor(iFeelEmpowered))
+                .isEqualTo(csvReaderResult.averageRatingFor(iFeelEmpowered))
+                .isEqualTo(1.5);
+
     }
 
     private void verifyGenericAnswer(final EmployeeResponse response,

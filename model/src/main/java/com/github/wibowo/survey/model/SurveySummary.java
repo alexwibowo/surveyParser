@@ -11,9 +11,9 @@ public interface SurveySummary {
     double participationPercentage();
 
     /**
-     * @return total number of survey response
+     * @return total number of participation
      */
-    long numberOfSurveyResponses();
+    long totalParticipation();
 
     /**
      * @param ratingQuestion {@link RatingQuestion} to get average for

@@ -21,7 +21,7 @@ public final class LoggerSurveyResponseSummaryRenderer implements SurveyResponse
         final NumberFormat percentFormat = DecimalFormat.getPercentInstance();
         LOGGER.info("=======================================");
         LOGGER.info("Participation percentage : {}", percentFormat.format(summary.participationPercentage()));
-        LOGGER.info("Total participation : {}", summary.numberOfSurveyResponses());
+        LOGGER.info("Total participation : {}", summary.totalParticipation());
         LOGGER.info("=======================================");
         final NumberFormat ratingFormat = new DecimalFormat("0.00");
         for (final Question question : survey.questions()) {

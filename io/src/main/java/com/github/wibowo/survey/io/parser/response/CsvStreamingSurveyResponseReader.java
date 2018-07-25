@@ -75,7 +75,7 @@ public final class CsvStreamingSurveyResponseReader extends BaseCsvSurveyRespons
         }
 
         @Override
-        public long numberOfSurveyResponses(){
+        public long totalParticipation(){
             return totalParticipation;
         }
 
