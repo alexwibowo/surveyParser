@@ -25,4 +25,8 @@ public class SurveyException extends RuntimeException {
         return new SurveyException(String.format("Question %s already exists in the survey", question));
     }
 
+    public static SurveyException unsupportedMetadataKey(final String key) {
+        return new SurveyException(String.format("Malformed survey file: Unsupported metadata key '%s'", key));
+    }
+
 }

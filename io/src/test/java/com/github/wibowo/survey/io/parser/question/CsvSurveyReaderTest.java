@@ -37,6 +37,20 @@ class CsvSurveyReaderTest {
     }
 
     @Test
+    void reject_file_with_unknown_column() {
+        final SurveyException unknownMetadata = Assertions.assertThrows(
+                SurveyException.class,
+                () -> new CsvSurveyReader().readFrom(inputFrom(new String[]{
+                        "type,text,theme,unknownKey",
+                        "ratingquestion,I like the kind of work I do,The Work,extra",
+                        "ratingquestion,Some question,The Work,extra2"
+                }))
+        );
+        assertThat(unknownMetadata.getMessage())
+                .isEqualTo("Malformed survey file: Unsupported metadata key 'unknownKey'");
+    }
+
+    @Test
     void reject_file_with_missing_column() {
         final SurveyException missingTheme = Assertions.assertThrows(
                 SurveyException.class,
@@ -69,21 +83,6 @@ class CsvSurveyReaderTest {
                 .isEqualTo(missingType.getMessage())
                 .isEqualTo(missingText.getMessage())
                 .isEqualTo("Malformed survey file: One or more required column is missing. Survey must contain 'theme','type' and 'text' columns");
-    }
-
-    @Test
-    void reject_file_with_mismatch_between_header_and_rows() {
-        final String[] rows = new String[]{
-                "theme,type,text,anotherExtraColumn",
-                "The Work,ratingquestion,I like the kind of work I do",
-                "The Work,ratingquestion,Some question regarding to unknown type"
-        };
-        final InputStream inputStream = inputFrom(rows);
-        final SurveyException exception = Assertions.assertThrows(
-                SurveyException.class,
-                () -> new CsvSurveyReader().readFrom(inputStream)
-        );
-        assertThat(exception.getMessage()).isEqualTo("Malformed survey file: Row [The Work, ratingquestion, I like the kind of work I do] cant be processed against header [theme, type, text, anotherExtraColumn]");
     }
 
     @Test

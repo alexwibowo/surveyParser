@@ -15,6 +15,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
@@ -52,6 +53,11 @@ public final class CsvSurveyReader implements SurveyReader<InputStream> {
         context.processLine(stringTokenizer.getTokenArray());
     }
 
+    /**
+     * Keeps track of the parsing process.
+     * i.e. when the metadata hasn't been read, it expects that the first one to be processed next would be the metadata.
+     * Subsequent read would be the data themselves.
+     */
     static class ParsingContext {
         Metadata metadata;
         final Survey survey;
@@ -79,13 +85,24 @@ public final class CsvSurveyReader implements SurveyReader<InputStream> {
         }
 
         private void readMetadata(final String[] metadataKeys) {
+            LOGGER.debug("Reading metadata line {}", Arrays.toString(metadataKeys));
             final String[] uniqueMetadataKeys = Arrays.stream(metadataKeys).distinct().toArray(String[]::new);
             if (uniqueMetadataKeys.length != metadataKeys.length) {
                 throw SurveyException.malformedFile(String.format("Header %s contain one or more duplicated columns.",
                         Arrays.toString(metadataKeys)
                 ));
             }
-            this.metadata = new Metadata(uniqueMetadataKeys);
+            verifyMetadata(metadataKeys);
+            this.metadata = new Metadata(metadataKeys);
+        }
+
+        private void verifyMetadata(final String[] metadataKeys) {
+            for (final String metadataKey : metadataKeys) {
+                if (MetadataKey.isValidKey(metadataKey)) {
+
+                }
+            }
+
         }
 
         private void readQuestion(final String[] columnValues) {
@@ -98,21 +115,53 @@ public final class CsvSurveyReader implements SurveyReader<InputStream> {
         }
     }
 
+    enum MetadataKey {
+        Theme("theme"),
+        Type("type"),
+        Text("text");
 
-    static class Metadata {
-        private final String[] columnNames;
+        private String key;
 
-        Metadata(final String[] columnNames) {
-
-            this.columnNames = columnNames;
+        MetadataKey(final String text) {
+            this.key=text;
         }
 
-        Question parseQuestionString(final String[] columnValues) {
-            if (columnValues.length != columnNames.length) {
+        static boolean isValidKey(final String keyName) {
+            for (MetadataKey metadataKey : values()) {
+                if (Objects.equals(metadataKey.key, keyName)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        static MetadataKey find(final String keyName) {
+            for (MetadataKey metadataKey : values()) {
+                if (Objects.equals(metadataKey.key, keyName)) {
+                    return metadataKey;
+                }
+            }
+            throw SurveyException.unsupportedMetadataKey(keyName);
+        }
+    }
+
+
+    static class Metadata {
+        private final MetadataKey[] keys;
+
+        Metadata(final String[] keyValues) {
+            this.keys = new MetadataKey[keyValues.length];
+            for (int i = 0; i < keyValues.length; i++) {
+                this.keys[i] = MetadataKey.find(keyValues[i]);
+            }
+        }
+
+        Question parseQuestionString(final String[] stringValues) {
+            if (stringValues.length != keys.length) {
                 throw SurveyException.malformedFile(
                         String.format(
                                 "Row %s cant be processed against header %s",
-                                Arrays.toString(columnValues), Arrays.toString(columnNames)
+                                Arrays.toString(stringValues), Arrays.toString(keys)
                         )
                 );
             }
@@ -120,17 +169,17 @@ public final class CsvSurveyReader implements SurveyReader<InputStream> {
             Theme theme = null;
             String questionType = null;
             String text = null;
-            for (int i = 0; i < columnNames.length; i++) {
-                final String columnName = columnNames[i];
+            for (int i = 0; i < keys.length; i++) {
+                final MetadataKey columnName = keys[i];
                 switch (columnName) {
-                    case "theme":
-                        theme = Theme.from(columnValues[i]);
+                    case Theme:
+                        theme = Theme.from(stringValues[i]);
                         break;
-                    case "type":
-                        questionType = columnValues[i];
+                    case Type:
+                        questionType = stringValues[i];
                         break;
-                    case "text":
-                        text = columnValues[i];
+                    case Text:
+                        text = stringValues[i];
                         break;
                     default:
                         throw new IllegalArgumentException("Unsupported column " + columnName);
