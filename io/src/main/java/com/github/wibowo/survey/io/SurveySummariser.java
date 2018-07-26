@@ -7,21 +7,25 @@ import com.github.wibowo.survey.model.SurveySummary;
 import com.github.wibowo.survey.model.questionAnswer.Question;
 import com.github.wibowo.survey.model.questionAnswer.RatingAnswer;
 import com.github.wibowo.survey.model.questionAnswer.RatingQuestion;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public final class SurveySummariser {
+    private static final Logger LOGGER = LogManager.getLogger(SurveySummariser.class);
 
     public static SurveySummary summarise(final Survey survey,
                                           final List<EmployeeResponse> employeeResponses) {
+        LOGGER.info("Summarising survey responses.");
         final int totalResponses = employeeResponses.size();
 
         final List<EmployeeResponse> submittedResponses = employeeResponses.stream()
                 .filter(EmployeeResponse::wasSubmitted)
                 .collect(Collectors.toList());
 
-        final DefaultSurveyResponseSummary defaultSurveyResponseSummary = new DefaultSurveyResponseSummary(survey);
+        final DefaultSurveyResponseSummary defaultSurveyResponseSummary = new DefaultSurveyResponseSummary(survey, submittedResponses);
         defaultSurveyResponseSummary.setParticipationPercentage( ((double)submittedResponses.size())  / totalResponses);
         defaultSurveyResponseSummary.setNumberOfParticipations(submittedResponses.size());
 

@@ -2,12 +2,15 @@ package com.github.wibowo.survey.model;
 
 import com.github.wibowo.survey.model.questionAnswer.RatingQuestion;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class DefaultSurveyResponseSummary implements SurveySummary{
 
     private final Survey survey;
+    private final List<EmployeeResponse> submittedResponses;
 
     private final Map<RatingQuestion, Double> ratingAverageByQuestion;
 
@@ -15,9 +18,19 @@ public final class DefaultSurveyResponseSummary implements SurveySummary{
 
     private long numberOfParticipations;
 
-    public DefaultSurveyResponseSummary(final Survey survey) {
+    public DefaultSurveyResponseSummary(final Survey survey,
+                                        final List<EmployeeResponse> submittedResponses) {
         this.survey = survey;
+        this.submittedResponses = submittedResponses;
         this.ratingAverageByQuestion = new HashMap<>();
+    }
+
+    public Survey getSurvey() {
+        return survey;
+    }
+
+    public List<EmployeeResponse> getSubmittedResponses() {
+        return Collections.unmodifiableList(submittedResponses);
     }
 
     @Override

@@ -14,7 +14,7 @@ public enum QuestionType {
     public static final QuestionType[] values = QuestionType.values();
 
     public static final String SUPPORTED_VALUES_AS_STRING = Arrays.stream(values)
-            .map(QuestionType::questionTypeAsString)
+            .map(questionType -> questionType.questionTypeAsString)
             .collect(Collectors.joining(","));
 
 
@@ -24,6 +24,10 @@ public enum QuestionType {
         this.questionTypeAsString = questionTypeAsString;
     }
 
+    /**
+     * @return QuestionType that matches the given String
+     * @throws SurveyException when there is no matching {@link QuestionType#questionTypeAsString}
+     */
     public static QuestionType questionTypeFor(final String stringValue) {
         Objects.requireNonNull(stringValue);
         final Optional<QuestionType> optionalType = Arrays.stream(values)
@@ -34,10 +38,6 @@ public enum QuestionType {
         } else {
             throw SurveyException.unsupportedQuestionType(stringValue);
         }
-    }
-
-    public String questionTypeAsString() {
-        return questionTypeAsString;
     }
 
     public static Question createFrom(final Theme theme,

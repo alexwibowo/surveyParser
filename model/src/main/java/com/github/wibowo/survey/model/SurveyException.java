@@ -4,9 +4,6 @@ import com.github.wibowo.survey.model.questionAnswer.Question;
 import com.github.wibowo.survey.model.questionAnswer.QuestionType;
 import com.github.wibowo.survey.model.questionAnswer.Theme;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
-
 public class SurveyException extends RuntimeException {
 
     public SurveyException(final String message) {
