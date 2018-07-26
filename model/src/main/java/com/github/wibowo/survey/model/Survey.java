@@ -2,9 +2,7 @@ package com.github.wibowo.survey.model;
 
 import com.github.wibowo.survey.model.questionAnswer.Question;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public final class Survey {
 
@@ -54,13 +52,12 @@ public final class Survey {
      */
     public int indexForQuestion(final Question question) {
         Objects.requireNonNull(question);
-        for (int i = 0; i < questions.size(); i++) {
-            Question question1 = questions.get(i);
-            if (Objects.equals(question, question1)) {
-                return i;
-            }
+
+        int index = questions.indexOf(question);
+        if (index == -1) {
+            throw new IllegalArgumentException(String.format("Question %s was not found in the survey %s", question, questions));
         }
-        throw new IllegalArgumentException(String.format("Question %s was not found in the survey %s", question, questions));
+        return index;
     }
 
 

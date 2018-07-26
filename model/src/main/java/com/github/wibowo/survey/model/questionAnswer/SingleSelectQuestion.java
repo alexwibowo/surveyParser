@@ -5,10 +5,9 @@ import org.jetbrains.annotations.NotNull;
 
 public final class SingleSelectQuestion extends BaseQuestion<SingleSelectAnswer> {
 
-    public SingleSelectQuestion(final int questionIndex,
-                                final Theme theme,
+    public SingleSelectQuestion(final Theme theme,
                                 final String sentence) {
-        super(questionIndex, theme, sentence);
+        super(theme, sentence);
     }
 
     @Override

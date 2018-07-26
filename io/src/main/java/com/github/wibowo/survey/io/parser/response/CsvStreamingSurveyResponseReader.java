@@ -72,7 +72,6 @@ public final class CsvStreamingSurveyResponseReader extends BaseCsvSurveyRespons
         private void addRatingForQuestion(final RatingQuestion question,
                                          final RatingAnswer ratingAnswer) {
             final int questionIndex = survey.indexForQuestion(question);
-            final int fastQuestionIndex = question.questionIndex();
             int currentTotalRatingForQuestion = totalRatingForQuestions[questionIndex] == NULL_RATING_RESPONSE ? 0 : totalRatingForQuestions[questionIndex];
             int currentNumberParticipantsForQuestion = numberParticipationsByQuestion[questionIndex] == NULL_RATING_RESPONSE ? 0 : numberParticipationsByQuestion[questionIndex];
             if (!ratingAnswer.isNull()) {
@@ -93,7 +92,6 @@ public final class CsvStreamingSurveyResponseReader extends BaseCsvSurveyRespons
 
         @Override
         public double averageRatingFor(final RatingQuestion ratingQuestion) {
-            final int fastQuestionIndex = ratingQuestion.questionIndex();
             final int questionIndex = survey.indexForQuestion(ratingQuestion);
             final int totalRatings = totalRatingForQuestions[questionIndex];
             final int numberOfParticipations = numberParticipationsByQuestion[questionIndex];

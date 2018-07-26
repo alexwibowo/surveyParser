@@ -7,12 +7,9 @@ import static java.util.Objects.requireNonNull;
 public abstract class BaseQuestion<E extends Answer> implements Question<E> {
     protected final Theme theme;
     protected final String sentence;
-    protected final int questionIndex;
 
-    protected BaseQuestion(final int questionIndex,
-                           final Theme theme,
+    protected BaseQuestion(final Theme theme,
                            final String sentence) {
-        this.questionIndex = questionIndex;
         this.theme = requireNonNull(theme);
         this.sentence = requireNonNull(sentence);
     }
@@ -32,12 +29,7 @@ public abstract class BaseQuestion<E extends Answer> implements Question<E> {
         return "BaseQuestion{" +
                 "theme=" + theme +
                 ", sentence='" + sentence + '\'' +
-                ", questionIndex=" + questionIndex +
                 '}';
-    }
-
-    public final int questionIndex() {
-        return questionIndex;
     }
 
     @Override
@@ -45,14 +37,13 @@ public abstract class BaseQuestion<E extends Answer> implements Question<E> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BaseQuestion<?> that = (BaseQuestion<?>) o;
-        return questionIndex == that.questionIndex &&
-                theme == that.theme &&
+        return theme == that.theme &&
                 Objects.equals(sentence, that.sentence);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(theme, sentence, questionIndex);
+        return Objects.hash(theme, sentence);
     }
 }

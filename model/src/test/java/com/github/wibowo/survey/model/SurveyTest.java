@@ -20,12 +20,12 @@ class SurveyTest {
 
     @BeforeEach
     void setUp() {
-        ratingQuestion1 = new RatingQuestion(0, Theme.Work, "I like the kind of work I do.");
-        ratingQuestion2 = new RatingQuestion(1, Theme.Place, "I feel empowered to get the work done for which I am responsible.");
-        ratingQuestion3 = new RatingQuestion(4, Theme.Work, "I would definitely work for this company again");
-        nonExistentRatingQuestion = new RatingQuestion(5, Theme.Work, "This question is invalid");
-        selectQuestion1 = new SingleSelectQuestion(2, Theme.Work, "Manager");
-        selectQuestion2 = new SingleSelectQuestion(3, Theme.Demographic, "City");
+        ratingQuestion1 = new RatingQuestion(Theme.Work, "I like the kind of work I do.");
+        ratingQuestion2 = new RatingQuestion(Theme.Place, "I feel empowered to get the work done for which I am responsible.");
+        ratingQuestion3 = new RatingQuestion(Theme.Work, "I would definitely work for this company again");
+        nonExistentRatingQuestion = new RatingQuestion(Theme.Work, "This question is invalid");
+        selectQuestion1 = new SingleSelectQuestion(Theme.Work, "Manager");
+        selectQuestion2 = new SingleSelectQuestion(Theme.Demographic, "City");
 
         survey = new Survey()
                 .addQuestion(ratingQuestion1)

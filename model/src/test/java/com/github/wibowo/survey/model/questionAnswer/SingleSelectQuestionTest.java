@@ -8,8 +8,8 @@ class SingleSelectQuestionTest {
 
     @Test
     void test_create() {
-        final SingleSelectQuestion question1 = new SingleSelectQuestion(0, Theme.Work, "Manager");
-        final SingleSelectQuestion question2 = new SingleSelectQuestion(1, Theme.Demographic, "City");
+        final SingleSelectQuestion question1 = new SingleSelectQuestion(Theme.Work, "Manager");
+        final SingleSelectQuestion question2 = new SingleSelectQuestion(Theme.Demographic, "City");
 
         assertThat(question1.theme()).isEqualTo(Theme.Work);
         assertThat(question1.sentence()).isEqualTo("Manager");

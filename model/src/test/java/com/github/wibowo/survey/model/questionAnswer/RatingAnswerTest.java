@@ -11,7 +11,7 @@ class RatingAnswerTest {
 
     @Test
     void reject_rating_less_than_1() {
-        final RatingQuestion ratingQuestion = new RatingQuestion(0, Theme.Place, "I feel empowered to get the work done for which I am responsible.");
+        final RatingQuestion ratingQuestion = new RatingQuestion(Theme.Place, "I feel empowered to get the work done for which I am responsible.");
         final IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class,
                 () -> RatingAnswer.createAnswer(ratingQuestion, 0)
         );
@@ -20,7 +20,7 @@ class RatingAnswerTest {
 
     @Test
     void reject_rating_greater_than_5() {
-        final RatingQuestion ratingQuestion = new RatingQuestion(0, Theme.Place, "I feel empowered to get the work done for which I am responsible.");
+        final RatingQuestion ratingQuestion = new RatingQuestion(Theme.Place, "I feel empowered to get the work done for which I am responsible.");
         final IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class,
                 () -> RatingAnswer.createAnswer(ratingQuestion, 6)
         );
@@ -38,7 +38,7 @@ class RatingAnswerTest {
     @ParameterizedTest
     @ValueSource(ints = {1, 2, 3, 4, 5})
     void accept_rating_between_1_and_5(int ratingValue) {
-        final RatingQuestion ratingQuestion = new RatingQuestion(0, Theme.Place, "I feel empowered to get the work done for which I am responsible.");
+        final RatingQuestion ratingQuestion = new RatingQuestion(Theme.Place, "I feel empowered to get the work done for which I am responsible.");
         final RatingAnswer answer = RatingAnswer.createAnswer(ratingQuestion, ratingValue);
 
         assertThat(answer.question()).isSameAs(ratingQuestion);
@@ -48,7 +48,7 @@ class RatingAnswerTest {
 
     @Test
     void test_null_answer() {
-        final RatingQuestion ratingQuestion = new RatingQuestion(0, Theme.Place, "I feel empowered to get the work done for which I am responsible.");
+        final RatingQuestion ratingQuestion = new RatingQuestion(Theme.Place, "I feel empowered to get the work done for which I am responsible.");
         final RatingAnswer nullAnswer = RatingAnswer.nullAnswer(ratingQuestion);
         assertThat(nullAnswer.isNull()).isTrue();
     }

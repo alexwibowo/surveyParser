@@ -34,10 +34,10 @@ class CsvSurveyResponseReaderTest {
 
     @BeforeEach
     void setUp() {
-        iLikeMyWork = new RatingQuestion(0, Theme.Work, "I like the kind of work I do.");
-        iHaveResourcesToDoMyWork = new RatingQuestion(1, Theme.Work, "In general, I have the resources (e.g., business tools, information, facilities, IT or functional support) I need to be effective.");
-        iFeelEmpowered = new RatingQuestion(2, Theme.Place, "I feel empowered to get the work done for which I am responsible.");
-        whoIsMyManager = new SingleSelectQuestion(3, Theme.Demographic, "Manager");
+        iLikeMyWork = new RatingQuestion(Theme.Work, "I like the kind of work I do.");
+        iHaveResourcesToDoMyWork = new RatingQuestion(Theme.Work, "In general, I have the resources (e.g., business tools, information, facilities, IT or functional support) I need to be effective.");
+        iFeelEmpowered = new RatingQuestion(Theme.Place, "I feel empowered to get the work done for which I am responsible.");
+        whoIsMyManager = new SingleSelectQuestion(Theme.Demographic, "Manager");
 
         survey1 = new Survey()
                 .addQuestion(iLikeMyWork)
