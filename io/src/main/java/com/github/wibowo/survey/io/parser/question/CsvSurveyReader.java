@@ -59,13 +59,11 @@ public final class CsvSurveyReader implements SurveyReader<InputStream> {
      * Subsequent read would be the data themselves.
      */
     static class ParsingContext {
-        Metadata metadata;
-        final Survey survey;
-        int questionIndex;
+        private Metadata metadata;
+        private final Survey survey;
 
         ParsingContext() {
             survey = new Survey();
-            questionIndex = 0;
         }
 
         void processLine(final String[] columnValues) {
@@ -84,59 +82,48 @@ public final class CsvSurveyReader implements SurveyReader<InputStream> {
             return metadata == null;
         }
 
-        private void readMetadata(final String[] metadataKeys) {
-            LOGGER.debug("Reading metadata line {}", Arrays.toString(metadataKeys));
-            final String[] uniqueMetadataKeys = Arrays.stream(metadataKeys).distinct().toArray(String[]::new);
-            if (uniqueMetadataKeys.length != metadataKeys.length) {
+        private void readMetadata(final String[] columnTypes) {
+            LOGGER.debug("Reading metadata line {}", Arrays.toString(columnTypes));
+            final String[] uniqueMetadataKeys = Arrays.stream(columnTypes).distinct().toArray(String[]::new);
+            if (uniqueMetadataKeys.length != columnTypes.length) {
                 throw SurveyException.malformedFile(String.format("Header %s contain one or more duplicated columns.",
-                        Arrays.toString(metadataKeys)
+                        Arrays.toString(columnTypes)
                 ));
             }
-            verifyMetadata(metadataKeys);
-            this.metadata = new Metadata(metadataKeys);
-        }
-
-        private void verifyMetadata(final String[] metadataKeys) {
-            for (final String metadataKey : metadataKeys) {
-                if (MetadataKey.isValidKey(metadataKey)) {
-
-                }
-            }
-
+            this.metadata = new Metadata(columnTypes);
         }
 
         private void readQuestion(final String[] columnValues) {
             final Metadata metadata = this.metadata;
-            this.addQuestion(metadata.parseQuestionString(columnValues));
-        }
-
-        private void addQuestion(final Question question) {
-            survey.addQuestion(question);
+            survey.addQuestion(metadata.parseQuestionString(columnValues));
         }
     }
 
-    enum MetadataKey {
+    /**
+     *  Type of column in the CSV file
+     */
+    enum ColumnType {
+        /**
+         * {@link Theme} for the data
+         */
         Theme("theme"),
+        /**
+         * Question type
+         */
         Type("type"),
+        /**
+         * Actual question sentence
+         */
         Text("text");
 
         private String key;
 
-        MetadataKey(final String text) {
+        ColumnType(final String text) {
             this.key=text;
         }
 
-        static boolean isValidKey(final String keyName) {
-            for (MetadataKey metadataKey : values()) {
-                if (Objects.equals(metadataKey.key, keyName)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        static MetadataKey find(final String keyName) {
-            for (MetadataKey metadataKey : values()) {
+        static ColumnType find(final String keyName) {
+            for (ColumnType metadataKey : ColumnType.values()) {
                 if (Objects.equals(metadataKey.key, keyName)) {
                     return metadataKey;
                 }
@@ -145,23 +132,32 @@ public final class CsvSurveyReader implements SurveyReader<InputStream> {
         }
     }
 
-
+    /**
+     * Keeps information about what each column in the CSV corresponds to.
+     * In particular, what is the {@link ColumnType} value of a column
+     */
     static class Metadata {
-        private final MetadataKey[] keys;
+        private final ColumnType[] columnTypes;
 
-        Metadata(final String[] keyValues) {
-            this.keys = new MetadataKey[keyValues.length];
-            for (int i = 0; i < keyValues.length; i++) {
-                this.keys[i] = MetadataKey.find(keyValues[i]);
-            }
+        Metadata(final String[] columnTypesAsString) {
+            this.columnTypes = Arrays.stream(columnTypesAsString)
+                    .map(ColumnType::find)
+                    .toArray(ColumnType[]::new);
         }
 
-        Question parseQuestionString(final String[] stringValues) {
-            if (stringValues.length != keys.length) {
+        /**
+         * Create a single {@link Question} from the given column values.
+         * The values are parsed in the order of {@link #columnTypes}
+         *
+         * @param columnValues values to be parsed
+         * @return instance of {@link Question} constructed from the values
+         */
+        Question parseQuestionString(final String[] columnValues) {
+            if (columnValues.length != columnTypes.length) {
                 throw SurveyException.malformedFile(
                         String.format(
                                 "Row %s cant be processed against header %s",
-                                Arrays.toString(stringValues), Arrays.toString(keys)
+                                Arrays.toString(columnValues), Arrays.toString(columnTypes)
                         )
                 );
             }
@@ -169,17 +165,17 @@ public final class CsvSurveyReader implements SurveyReader<InputStream> {
             Theme theme = null;
             String questionType = null;
             String text = null;
-            for (int i = 0; i < keys.length; i++) {
-                final MetadataKey columnName = keys[i];
+            for (int i = 0; i < columnTypes.length; i++) {
+                final ColumnType columnName = columnTypes[i];
                 switch (columnName) {
                     case Theme:
-                        theme = Theme.from(stringValues[i]);
+                        theme = Theme.from(columnValues[i]);
                         break;
                     case Type:
-                        questionType = stringValues[i];
+                        questionType = columnValues[i];
                         break;
                     case Text:
-                        text = stringValues[i];
+                        text = columnValues[i];
                         break;
                     default:
                         throw new IllegalArgumentException("Unsupported column " + columnName);
