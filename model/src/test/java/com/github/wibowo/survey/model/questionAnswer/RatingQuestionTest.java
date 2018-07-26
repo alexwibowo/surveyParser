@@ -38,7 +38,44 @@ class RatingQuestionTest {
 
         assertTrue(new RatingQuestion(Theme.Work, "I like the kind of work I do.")
                 .createAnswerFrom("-1").isNull());
+
+        assertTrue(new RatingQuestion(Theme.Work, "I like the kind of work I do.")
+                .createAnswerFrom("").isNull());
+        assertTrue(new RatingQuestion(Theme.Work, "I like the kind of work I do.")
+                .createAnswerFrom(" ").isNull());
+        assertTrue(new RatingQuestion(Theme.Work, "I like the kind of work I do.")
+                .createAnswerFrom(null).isNull());
     }
+
+    @Test
+    void toString_method() {
+        assertThat(new RatingQuestion(Theme.Work, "I like the kind of work I do.").toString())
+            .contains("RatingQuestion")
+            .contains("theme=Work")
+            .contains("sentence='I like the kind of work I do.'");
+    }
+
+    @Test
+    void test_equality() {
+        assertThat(new RatingQuestion(Theme.Work, "I like the kind of work I do."))
+                .isEqualTo(new RatingQuestion(Theme.Work, "I like the kind of work I do."));
+        assertThat(new RatingQuestion(Theme.Work, "I like the kind of work I do.").hashCode())
+                .isEqualTo(new RatingQuestion(Theme.Work, "I like the kind of work I do.").hashCode());
+
+        // different theme
+        assertThat(new RatingQuestion(Theme.Work, "I like the kind of work I do."))
+                .isNotEqualTo(new RatingQuestion(Theme.Place, "I like the kind of work I do."));
+        assertThat(new RatingQuestion(Theme.Work, "I like the kind of work I do.").hashCode())
+                .isNotEqualTo(new RatingQuestion(Theme.Place, "I like the kind of work I do.").hashCode());
+
+        // different sentence
+        assertThat(new RatingQuestion(Theme.Work, "I like the kind of work I do."))
+                .isNotEqualTo(new RatingQuestion(Theme.Work, "Another question"));
+        assertThat(new RatingQuestion(Theme.Work, "I like the kind of work I do.").hashCode())
+                .isNotEqualTo(new RatingQuestion(Theme.Work, "Another question").hashCode());
+
+    }
+
 
 
 }

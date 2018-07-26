@@ -26,7 +26,9 @@ public abstract class BaseQuestion<E extends Answer> implements Question<E> {
 
     @Override
     public String toString() {
-        return "BaseQuestion{" +
+        // if this is invoked a lot of time, we can move it to construction time, provided all properties
+        // are still immutable
+        return getClass().getSimpleName() + "{" +
                 "theme=" + theme +
                 ", sentence='" + sentence + '\'' +
                 '}';
@@ -43,7 +45,6 @@ public abstract class BaseQuestion<E extends Answer> implements Question<E> {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(theme, sentence);
     }
 }
