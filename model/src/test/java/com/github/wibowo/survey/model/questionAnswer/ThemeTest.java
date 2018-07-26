@@ -1,5 +1,6 @@
 package com.github.wibowo.survey.model.questionAnswer;
 
+import com.github.wibowo.survey.model.SurveyException;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,10 +45,22 @@ class ThemeTest {
 
     @Test
     void fail_when_given_emptyString() {
-        final IllegalArgumentException exception = org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
+        final SurveyException exception = org.junit.jupiter.api.Assertions.assertThrows(SurveyException.class,
                 () -> Theme.from("")
         );
-        assertThat(exception.getMessage()).isEqualTo("Unsupported theme []");
+        assertThat(exception.getMessage())
+                .contains("Unsupported theme []")
+                .contains("Supported values are");
+    }
+
+    @Test
+    void fail_when_given_invalid_theme() {
+        final SurveyException exception = org.junit.jupiter.api.Assertions.assertThrows(SurveyException.class,
+                () -> Theme.from("abcdef")
+        );
+        assertThat(exception.getMessage())
+                .contains("Unsupported theme [abcdef]")
+                .contains("Supported values are");
     }
 
 }

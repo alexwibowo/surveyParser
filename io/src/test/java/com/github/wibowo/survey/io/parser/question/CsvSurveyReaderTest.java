@@ -98,7 +98,7 @@ class CsvSurveyReaderTest {
                 SurveyException.class,
                 () -> new CsvSurveyReader().readFrom(inputStream)
         );
-        assertThat(exception.getMessage()).isEqualTo("Unsupported question [someunknowntype]");
+        assertThat(exception.getMessage()).isEqualTo("Unsupported question type [someunknowntype]. Supported values are [ratingquestion,singleselect]");
     }
 
     @Test

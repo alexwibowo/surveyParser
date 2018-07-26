@@ -19,7 +19,7 @@ class QuestionFactoryTest {
                 .map(theme -> DynamicTest.dynamicTest(
                         String.format("Test creating RatingQuestion using theme %s", theme),
                         () -> {
-                            final Question ratingquestion = QuestionFactory.createFrom(theme, "ratingquestion", "any text here. does not matter");
+                            final Question ratingquestion = QuestionType.createFrom(theme, "ratingquestion", "any text here. does not matter");
                             assertThat(ratingquestion).isInstanceOf(RatingQuestion.class);
                             assertThat(ratingquestion.theme()).isEqualTo(theme);
                             assertThat(ratingquestion.sentence()).isEqualTo("any text here. does not matter");
@@ -33,7 +33,7 @@ class QuestionFactoryTest {
                 .map(theme -> DynamicTest.dynamicTest(
                         String.format("Test creating SingleSelectQuestion using theme %s", theme),
                         () -> {
-                            final Question ratingquestion = QuestionFactory.createFrom(theme, "singleselect", "comptine d'un autre été");
+                            final Question ratingquestion = QuestionType.createFrom(theme, "singleselect", "comptine d'un autre été");
                             assertThat(ratingquestion).isInstanceOf(SingleSelectQuestion.class);
                             assertThat(ratingquestion.theme()).isEqualTo(theme);
                             assertThat(ratingquestion.sentence()).isEqualTo("comptine d'un autre été");
@@ -44,15 +44,15 @@ class QuestionFactoryTest {
     @Test
     void fail_on_attempt_to_create_unsupported_questionType() {
         final SurveyException exception = Assertions.assertThrows(SurveyException.class,
-                () -> QuestionFactory.createFrom(Theme.Work, "someunknowntype", "una mattina")
+                () -> QuestionType.createFrom(Theme.Work, "someunknowntype", "una mattina")
         );
-        assertThat(exception.getMessage()).isEqualTo("Unsupported question [someunknowntype]");
+        assertThat(exception.getMessage()).contains("Unsupported question type [someunknowntype]");
     }
 
     @Test
     void question_type_cant_be_null() {
         final NullPointerException exception = Assertions.assertThrows(NullPointerException.class,
-                () -> QuestionFactory.createFrom(Theme.Work, null, "una mattina")
+                () -> QuestionType.createFrom(Theme.Work, null, "una mattina")
         );
         assertThat(exception.getMessage()).isEqualTo("question type must be provided");
     }

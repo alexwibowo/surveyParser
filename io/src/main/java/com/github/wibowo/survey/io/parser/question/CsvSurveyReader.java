@@ -3,7 +3,7 @@ package com.github.wibowo.survey.io.parser.question;
 import com.github.wibowo.survey.model.Survey;
 import com.github.wibowo.survey.model.SurveyException;
 import com.github.wibowo.survey.model.questionAnswer.Question;
-import com.github.wibowo.survey.model.questionAnswer.QuestionFactory;
+import com.github.wibowo.survey.model.questionAnswer.QuestionType;
 import com.github.wibowo.survey.model.questionAnswer.Theme;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringTokenizer;
@@ -188,7 +188,7 @@ public final class CsvSurveyReader implements SurveyReader<InputStream> {
                 );
 
             }
-            return QuestionFactory.createFrom(theme, questionType, text);
+            return QuestionType.createFrom(theme, questionType, text);
         }
     }
 
