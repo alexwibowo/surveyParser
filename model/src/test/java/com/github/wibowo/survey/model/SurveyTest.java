@@ -74,7 +74,12 @@ class SurveyTest {
 
     @Test
     void should_fail_on_attempt_to_add_duplicated_question() {
-        throw new RuntimeException("Implement me");
+        survey = new Survey().addQuestion(ratingQuestion1);
+
+        final SurveyException exception = Assertions.assertThrows(SurveyException.class,
+                () -> survey.addQuestion(ratingQuestion1)
+        );
+        assertThat(exception.getMessage()).matches("Question.*already exists in the survey");
     }
 
     @Test

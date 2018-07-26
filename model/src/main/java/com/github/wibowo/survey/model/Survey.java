@@ -19,6 +19,9 @@ public final class Survey {
      * @return this survey
      */
     public Survey addQuestion(final Question newQuestion) {
+        if (this.questions.contains(newQuestion)) {
+            throw SurveyException.duplicatedQuestion(newQuestion);
+        }
         this.questions.add(Objects.requireNonNull(newQuestion));
         return this;
     }
