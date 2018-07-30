@@ -1,6 +1,9 @@
 package com.github.wibowo.survey.model;
 
 import com.github.wibowo.survey.model.questionAnswer.RatingQuestion;
+import com.github.wibowo.survey.model.questionAnswer.SingleSelectQuestion;
+
+import java.util.Map;
 
 public interface SurveySummary {
     /**
@@ -24,4 +27,6 @@ public interface SurveySummary {
      * </ul>
      */
     double averageRatingFor(RatingQuestion ratingQuestion);
+
+    Map<String, Double> percentageFor(SingleSelectQuestion question);
 }

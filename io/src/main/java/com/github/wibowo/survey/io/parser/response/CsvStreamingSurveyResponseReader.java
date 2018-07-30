@@ -5,12 +5,14 @@ import com.github.wibowo.survey.model.SurveySummary;
 import com.github.wibowo.survey.model.questionAnswer.Question;
 import com.github.wibowo.survey.model.questionAnswer.RatingAnswer;
 import com.github.wibowo.survey.model.questionAnswer.RatingQuestion;
+import com.github.wibowo.survey.model.questionAnswer.SingleSelectQuestion;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -99,6 +101,11 @@ public final class CsvStreamingSurveyResponseReader extends BaseCsvSurveyRespons
                 return Double.NaN;
             }
             return ((double) totalRatings) / numberOfParticipations;
+        }
+
+        @Override
+        public Map<String, Double> percentageFor(SingleSelectQuestion question) {
+            throw new UnsupportedOperationException("Not supported");
         }
     }
 

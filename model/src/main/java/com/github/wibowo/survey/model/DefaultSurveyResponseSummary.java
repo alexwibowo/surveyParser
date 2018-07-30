@@ -1,11 +1,16 @@
 package com.github.wibowo.survey.model;
 
 import com.github.wibowo.survey.model.questionAnswer.RatingQuestion;
+import com.github.wibowo.survey.model.questionAnswer.SingleSelectAnswer;
+import com.github.wibowo.survey.model.questionAnswer.SingleSelectQuestion;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public final class DefaultSurveyResponseSummary implements SurveySummary{
 
@@ -59,5 +64,30 @@ public final class DefaultSurveyResponseSummary implements SurveySummary{
     @Override
     public double averageRatingFor(final RatingQuestion ratingQuestion) {
         return ratingAverageByQuestion.get(ratingQuestion);
+    }
+
+    @Override
+    public Map<String, Double> percentageFor(final SingleSelectQuestion question) {
+        int size = submittedResponses.size();
+        Map<String, Long> collect1 = submittedResponses.stream()
+                .map(response -> response.answerFor(question))
+                .collect(Collectors.groupingBy(
+                        SingleSelectAnswer::selection,
+                        Collectors.counting()
+                ));
+
+        Map<String, Double> averageByAnswer = new HashMap<>();
+        for (Map.Entry<String, Long> stringLongEntry : collect1.entrySet()) {
+            averageByAnswer.put(stringLongEntry.getKey(), ((double) stringLongEntry.getValue()) / size);
+        }
+
+        return averageByAnswer;
+
+       /* Map<Map.Entry<String, Long>, Double> collect = collect1
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(Function.identity(), stringLongEntry -> ((double) stringLongEntry.getValue()) / size));
+*/
+
     }
 }

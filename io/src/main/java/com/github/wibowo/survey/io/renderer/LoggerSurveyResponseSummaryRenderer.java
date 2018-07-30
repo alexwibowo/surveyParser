@@ -4,11 +4,13 @@ import com.github.wibowo.survey.model.Survey;
 import com.github.wibowo.survey.model.SurveySummary;
 import com.github.wibowo.survey.model.questionAnswer.Question;
 import com.github.wibowo.survey.model.questionAnswer.RatingQuestion;
+import com.github.wibowo.survey.model.questionAnswer.SingleSelectQuestion;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Map;
 
 /**
  * Implementation of {@link SurveyResponseSummaryRenderer} that simply logs the result to {@link Logger}
@@ -31,7 +33,14 @@ public final class LoggerSurveyResponseSummaryRenderer implements SurveyResponse
                         question.sentence(),
                         Double.isNaN(average) ? "N/A" : ratingFormat.format(average)
                 );
+            } else if (question instanceof SingleSelectQuestion) {
+                Map<String, Double> percentageByAnswer = summary.percentageFor((SingleSelectQuestion) question);
+                for (Map.Entry<String, Double> stringDoubleEntry : percentageByAnswer.entrySet()) {
+                    LOGGER.info("{}: {}", stringDoubleEntry.getKey(), percentFormat.format(stringDoubleEntry.getValue()));
+                }
             }
         }
+
+
     }
 }

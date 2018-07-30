@@ -9,7 +9,8 @@ import java.util.stream.Collectors;
 
 public enum QuestionType {
     RatingQuestion("ratingquestion"),
-    SingleSelectQuestion("singleselect");
+    SingleSelectQuestion("singleselect"),
+    MultiSelectQuestion("multiselect");
 
     public static final QuestionType[] values = QuestionType.values();
 
@@ -49,6 +50,8 @@ public enum QuestionType {
                 return new RatingQuestion(theme, text);
             case SingleSelectQuestion:
                 return new SingleSelectQuestion(theme, text);
+            case MultiSelectQuestion:
+                return new MultiSelectQuestion(theme, text);
             default:
                 throw SurveyException.unsupportedQuestionType(type);
         }

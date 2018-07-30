@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -81,8 +82,7 @@ public class ApplicationAcceptanceTest {
                 "employee3@abc.xyz,3,2014-07-30T20:35:41+00:00,4,3,2,1,5"
         };
 
-        Files.write(surveyFile.toPath(), Arrays.asList(surveyLines), Charset.defaultCharset());
-        Files.write(surveyResponseFile.toPath(), Arrays.asList(surveyResponseLines), Charset.defaultCharset());
+        writeSurveyAndResponses(surveyLines, surveyResponseLines);
 
 
         final @NotNull String[] lines = executeAndGetOutput(enableStreaming);
@@ -93,6 +93,63 @@ public class ApplicationAcceptanceTest {
         verifyLineExists(lines, question3, question3 + " : 3.33");
         verifyLineExists(lines, question4, question4 + " : 3.00");
         verifyLineExists(lines, question5, question5 + " : 3.67");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"true", "false"})
+    void test_multi_answer(final String enableStreaming) throws IOException {
+        final String question1 = "I like the kind of work I do";
+        final String question2 = "Office Location";
+        final String[] surveyLines = new String[]{
+                "theme,type,text",
+                "The Work,ratingquestion," + question1,
+                "The Work,multiselect," + question2
+        };
+
+        final String[] surveyResponseLines = new String[]{
+                "employee1@abc.xyz,1,2014-07-28T20:35:41+00:00,5,Melbourne",
+                "employee2@abc.xyz,2,2014-07-29T20:35:41+00:00,5,Melbourne|Sydney",
+                "employee3@abc.xyz,3,2014-07-30T20:35:41+00:00,5,Jakarta|Singapore"
+        };
+
+        writeSurveyAndResponses(surveyLines, surveyResponseLines);
+
+        final @NotNull String[] lines = executeAndGetOutput(enableStreaming);
+        verifyLineExists(lines, "Participation percentage", "Participation percentage : 100%");
+        verifyLineExists(lines, "Total participation", "Total participation : 3");
+        verifyLineExists(lines, question1, question1 + " : 5.00");
+    }
+
+    private void writeSurveyAndResponses(String[] surveyLines, String[] surveyResponseLines) throws IOException {
+        Files.write(surveyFile.toPath(), Arrays.asList(surveyLines), Charset.defaultCharset());
+        Files.write(surveyResponseFile.toPath(), Arrays.asList(surveyResponseLines), Charset.defaultCharset());
+    }
+
+    @Test
+    void test_single_answer_output() throws IOException {
+        final String question1 = "I like the kind of work I do";
+        final String question2 = "Manager";
+        final String[] surveyLines = new String[]{
+                "theme,type,text",
+                "The Work,ratingquestion," + question1,
+                "The Work,singleselect," + question2
+        };
+
+        final String[] surveyResponseLines = new String[]{
+                ",1,2014-07-28T20:35:41+00:00,5,Sally",
+                ",2,2014-07-29T07:05:41+00:00,4,Jane",
+                ",3,2014-07-29T17:35:41+00:00,5,Sally",
+                ",4,2014-07-30T04:05:41+00:00,5,Bob",
+                ",5,2014-07-31T11:35:41+00:00,4,Mary"
+        };
+
+        writeSurveyAndResponses(surveyLines, surveyResponseLines);
+        final @NotNull String[] lines = executeAndGetOutput("false");
+        verifyLineExists(lines, "Sally", "Sally: 40%");
+        verifyLineExists(lines, "Jane", "Jane: 20%");
+        verifyLineExists(lines, "Bob", "Bob: 20%");
+        verifyLineExists(lines, "Mary", "Mary: 20%");
+        verifyLineDoesntExist(lines, "John");
     }
 
     @ParameterizedTest
@@ -122,8 +179,7 @@ public class ApplicationAcceptanceTest {
                 "employee5@abc.xyz,6,,,,,,"
         };
 
-        Files.write(surveyFile.toPath(), Arrays.asList(surveyLines), Charset.defaultCharset());
-        Files.write(surveyResponseFile.toPath(), Arrays.asList(surveyResponseLines), Charset.defaultCharset());
+        writeSurveyAndResponses(surveyLines, surveyResponseLines);
 
 
         final @NotNull String[] lines = executeAndGetOutput(enableStreaming);
@@ -161,8 +217,7 @@ public class ApplicationAcceptanceTest {
                 ",5,2014-07-31T11:35:41+00:00,4,5,5,2,Mary"
         };
 
-        Files.write(surveyFile.toPath(), Arrays.asList(surveyLines), Charset.defaultCharset());
-        Files.write(surveyResponseFile.toPath(), Arrays.asList(surveyResponseLines), Charset.defaultCharset());
+        writeSurveyAndResponses(surveyLines, surveyResponseLines);
 
         final @NotNull String[] lines = executeAndGetOutput(enableStreaming);
         verifyLineExists(lines, "Participation percentage", "Participation percentage : 100%");
@@ -202,8 +257,7 @@ public class ApplicationAcceptanceTest {
                 "employee2@abc.xyz,,,4,5,Darwin,2,Mary",
         };
 
-        Files.write(surveyFile.toPath(), Arrays.asList(surveyLines), Charset.defaultCharset());
-        Files.write(surveyResponseFile.toPath(), Arrays.asList(surveyResponseLines), Charset.defaultCharset());
+        writeSurveyAndResponses(surveyLines, surveyResponseLines);
 
         final @NotNull String[] lines = executeAndGetOutput(enableStreaming);
         verifyLineExists(lines, "Participation percentage", "Participation percentage : 0%");
@@ -231,6 +285,14 @@ public class ApplicationAcceptanceTest {
         assertThat(Arrays.stream(lines)
                 .filter(line -> line.startsWith(lineFinder))
                 .findFirst().get()).isEqualTo(lineMatcher);
+    }
+
+    private void verifyLineDoesntExist(@NotNull final String[] lines,
+                                  final String lineFinder) {
+        assertThat(Arrays.stream(lines)
+                .filter(line -> line.startsWith(lineFinder))
+                .findFirst())
+                .isNotPresent();
     }
 
     private String[] executeAndGetOutput(final String enableStreaming) throws FileNotFoundException {
