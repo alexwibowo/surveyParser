@@ -2,9 +2,9 @@ package com.github.wibowo.survey.model.questionAnswer;
 
 import org.jetbrains.annotations.NotNull;
 
-public final class MultiSelectQuestion extends BaseQuestion<MultiSelectAnswer>{
-    protected MultiSelectQuestion(final Theme theme,
-                                  final String sentence) {
+public final class MultiSelectQuestion extends BaseQuestion<MultiSelectAnswer> {
+    MultiSelectQuestion(final Theme theme,
+                        final String sentence) {
         super(theme, sentence);
     }
 

@@ -4,11 +4,11 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public final class MultiSelectAnswer extends BaseAnswer<MultiSelectQuestion>{
-    public static final String[] NO_SELECTION = {};
+    private static final String[] NO_SELECTION = {};
     private final String[] selection;
     private boolean isNull;
 
-    protected MultiSelectAnswer(final MultiSelectQuestion question,
+    private MultiSelectAnswer(final MultiSelectQuestion question,
                                 final String[] selection,
                                 final boolean isNull) {
         super(question);

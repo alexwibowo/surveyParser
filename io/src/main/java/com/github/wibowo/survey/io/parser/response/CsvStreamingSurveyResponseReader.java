@@ -2,15 +2,13 @@ package com.github.wibowo.survey.io.parser.response;
 
 import com.github.wibowo.survey.model.Survey;
 import com.github.wibowo.survey.model.SurveySummary;
-import com.github.wibowo.survey.model.questionAnswer.Question;
-import com.github.wibowo.survey.model.questionAnswer.RatingAnswer;
-import com.github.wibowo.survey.model.questionAnswer.RatingQuestion;
-import com.github.wibowo.survey.model.questionAnswer.SingleSelectQuestion;
+import com.github.wibowo.survey.model.questionAnswer.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -105,7 +103,12 @@ public final class CsvStreamingSurveyResponseReader extends BaseCsvSurveyRespons
 
         @Override
         public Map<String, Double> percentageFor(SingleSelectQuestion question) {
-            throw new UnsupportedOperationException("Not supported");
+            return new HashMap<>();
+        }
+
+        @Override
+        public Map<String, Double> percentageFor(MultiSelectQuestion question) {
+            return new HashMap<>();
         }
     }
 

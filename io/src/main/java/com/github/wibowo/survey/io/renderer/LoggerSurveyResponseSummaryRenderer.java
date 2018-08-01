@@ -2,6 +2,7 @@ package com.github.wibowo.survey.io.renderer;
 
 import com.github.wibowo.survey.model.Survey;
 import com.github.wibowo.survey.model.SurveySummary;
+import com.github.wibowo.survey.model.questionAnswer.MultiSelectQuestion;
 import com.github.wibowo.survey.model.questionAnswer.Question;
 import com.github.wibowo.survey.model.questionAnswer.RatingQuestion;
 import com.github.wibowo.survey.model.questionAnswer.SingleSelectQuestion;
@@ -17,30 +18,51 @@ import java.util.Map;
  */
 public final class LoggerSurveyResponseSummaryRenderer implements SurveyResponseSummaryRenderer {
     public static final Logger LOGGER = LogManager.getLogger(LoggerSurveyResponseSummaryRenderer.class);
+    private static final ThreadLocal<DecimalFormat> ratingFormat = ThreadLocal.withInitial(() -> new DecimalFormat("0.00"));
+    private static final ThreadLocal<NumberFormat> percentFormat = ThreadLocal.withInitial(DecimalFormat::getPercentInstance);
 
     @Override
     public void render(final Survey survey, final SurveySummary summary) {
-        final NumberFormat percentFormat = DecimalFormat.getPercentInstance();
         LOGGER.info("=======================================");
-        LOGGER.info("Participation percentage : {}", percentFormat.format(summary.participationPercentage()));
+        LOGGER.info("Participation percentage : {}", percentFormat.get().format(summary.participationPercentage()));
         LOGGER.info("Total participation : {}", summary.totalParticipation());
         LOGGER.info("=======================================");
-        final NumberFormat ratingFormat = new DecimalFormat("0.00");
         for (final Question question : survey.questions()) {
             if (question instanceof RatingQuestion) {
-                final double average = summary.averageRatingFor((RatingQuestion) question);
-                LOGGER.info("{} : {}",
-                        question.sentence(),
-                        Double.isNaN(average) ? "N/A" : ratingFormat.format(average)
-                );
+                reportRatingQuestion(summary, (RatingQuestion) question);
             } else if (question instanceof SingleSelectQuestion) {
-                Map<String, Double> percentageByAnswer = summary.percentageFor((SingleSelectQuestion) question);
-                for (Map.Entry<String, Double> stringDoubleEntry : percentageByAnswer.entrySet()) {
-                    LOGGER.info("{}: {}", stringDoubleEntry.getKey(), percentFormat.format(stringDoubleEntry.getValue()));
-                }
+                reportSingleSelectQuestion(summary, (SingleSelectQuestion) question);
+            } else if (question instanceof MultiSelectQuestion) {
+                reportMultiSelectQuestion(summary, (MultiSelectQuestion) question);
             }
         }
 
 
     }
+
+    private void reportMultiSelectQuestion(final SurveySummary summary,
+                                           final MultiSelectQuestion question) {
+        final Map<String, Double> percentageByAnswer = summary.percentageFor(question);
+        for (final Map.Entry<String, Double> stringDoubleEntry : percentageByAnswer.entrySet()) {
+            LOGGER.info("{}: {}: {}", question.sentence(), stringDoubleEntry.getKey(), percentFormat.get().format(stringDoubleEntry.getValue()));
+        }
+    }
+
+    private void reportRatingQuestion(final SurveySummary summary,
+                                      final RatingQuestion question) {
+        final double average = summary.averageRatingFor(question);
+        LOGGER.info("{} : {}",
+                question.sentence(),
+                Double.isNaN(average) ? "N/A" : ratingFormat.get().format(average)
+        );
+    }
+
+    private void reportSingleSelectQuestion(final SurveySummary summary,
+                                            final SingleSelectQuestion question) {
+        final Map<String, Double> percentageByAnswer = summary.percentageFor(question);
+        for (final Map.Entry<String, Double> stringDoubleEntry : percentageByAnswer.entrySet()) {
+            LOGGER.info("{}: {}: {}", question.sentence(), stringDoubleEntry.getKey(), percentFormat.get().format(stringDoubleEntry.getValue()));
+        }
+    }
+
 }

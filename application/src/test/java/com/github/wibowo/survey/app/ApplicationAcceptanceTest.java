@@ -118,6 +118,13 @@ public class ApplicationAcceptanceTest {
         verifyLineExists(lines, "Participation percentage", "Participation percentage : 100%");
         verifyLineExists(lines, "Total participation", "Total participation : 3");
         verifyLineExists(lines, question1, question1 + " : 5.00");
+
+        if (!Boolean.valueOf(enableStreaming)) {
+            verifyLineExists(lines, question2 + ": Singapore", question2 + ": Singapore: 20%");
+            verifyLineExists(lines, question2 + ": Jakarta", question2 + ": Jakarta: 20%");
+            verifyLineExists(lines, question2 + ": Sydney", question2 + ": Sydney: 20%");
+            verifyLineExists(lines, question2 + ": Melbourne", question2 + ": Melbourne: 40%");
+        }
     }
 
     private void writeSurveyAndResponses(String[] surveyLines, String[] surveyResponseLines) throws IOException {
@@ -145,11 +152,11 @@ public class ApplicationAcceptanceTest {
 
         writeSurveyAndResponses(surveyLines, surveyResponseLines);
         final @NotNull String[] lines = executeAndGetOutput("false");
-        verifyLineExists(lines, "Sally", "Sally: 40%");
-        verifyLineExists(lines, "Jane", "Jane: 20%");
-        verifyLineExists(lines, "Bob", "Bob: 20%");
-        verifyLineExists(lines, "Mary", "Mary: 20%");
-        verifyLineDoesntExist(lines, "John");
+        verifyLineExists(lines, "Manager: Sally", "Manager: Sally: 40%");
+        verifyLineExists(lines, "Manager: Jane", "Manager: Jane: 20%");
+        verifyLineExists(lines, "Manager: Bob", "Manager: Bob: 20%");
+        verifyLineExists(lines, "Manager: Mary", "Manager: Mary: 20%");
+        verifyLineDoesntExist(lines, "Manager: John");
     }
 
     @ParameterizedTest
@@ -226,10 +233,14 @@ public class ApplicationAcceptanceTest {
         verifyLineExists(lines, question2, question2 + " : " + formatRating(((double) (5 + 5 + 5 + 5 + 5)) / 5));
         verifyLineExists(lines, question3, question3 + " : " + formatRating(((double) (5 + 5 + 5 + 5 + 5)) / 5));
         verifyLineExists(lines, question4, question4 + " : " + formatRating(((double) (4 + 3 + 5 + 4 + 2)) / 5));
-        assertFalse(Arrays.stream(lines)
-                .filter(line -> line.startsWith("Manager"))
-                .findAny()
-                .isPresent());
+
+        if (!Boolean.valueOf(enableStreaming)) {
+            verifyLineExists(lines, question5 + ": Bob", question5 + ": Bob: 20%");
+            verifyLineExists(lines, question5 + ": Sally", question5 + ": Sally: 20%");
+            verifyLineExists(lines, question5 + ": John", question5 + ": John: 20%");
+            verifyLineExists(lines, question5 + ": Jane", question5 + ": Jane: 20%");
+            verifyLineExists(lines, question5 + ": Mary", question5 + ": Mary: 20%");
+        }
     }
 
     @ParameterizedTest

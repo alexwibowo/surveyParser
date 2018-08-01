@@ -1,16 +1,13 @@
 package com.github.wibowo.survey.model;
 
-import com.github.wibowo.survey.model.questionAnswer.RatingQuestion;
-import com.github.wibowo.survey.model.questionAnswer.SingleSelectAnswer;
-import com.github.wibowo.survey.model.questionAnswer.SingleSelectQuestion;
+import com.github.wibowo.survey.model.questionAnswer.*;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
+import java.util.function.ToLongFunction;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class DefaultSurveyResponseSummary implements SurveySummary{
 
@@ -82,12 +79,23 @@ public final class DefaultSurveyResponseSummary implements SurveySummary{
         }
 
         return averageByAnswer;
+    }
 
-       /* Map<Map.Entry<String, Long>, Double> collect = collect1
-                .entrySet()
-                .stream()
-                .collect(Collectors.toMap(Function.identity(), stringLongEntry -> ((double) stringLongEntry.getValue()) / size));
-*/
+    public Map<String, Double> percentageFor(final MultiSelectQuestion multiSelectQuestion) {
+        final Map<String, Long> countBySelection = submittedResponses.stream()
+                .map(response -> response.answerFor(multiSelectQuestion))
+                .flatMap((Function<MultiSelectAnswer, Stream<String>>) multiSelectAnswer -> Arrays.stream(multiSelectAnswer.getSelection()))
+                .collect(Collectors.groupingBy(
+                        Function.identity(),
+                        Collectors.counting()
+                ));
 
+        final long size = countBySelection.values().stream().mapToLong(Long::longValue).sum();
+
+        final Map<String, Double> averageByAnswer = new HashMap<>();
+        for (final Map.Entry<String, Long> stringLongEntry : countBySelection.entrySet()) {
+            averageByAnswer.put(stringLongEntry.getKey(), ((double) stringLongEntry.getValue()) / size);
+        }
+        return averageByAnswer;
     }
 }

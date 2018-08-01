@@ -1,5 +1,6 @@
 package com.github.wibowo.survey.model;
 
+import com.github.wibowo.survey.model.questionAnswer.MultiSelectQuestion;
 import com.github.wibowo.survey.model.questionAnswer.RatingQuestion;
 import com.github.wibowo.survey.model.questionAnswer.SingleSelectQuestion;
 
@@ -29,4 +30,6 @@ public interface SurveySummary {
     double averageRatingFor(RatingQuestion ratingQuestion);
 
     Map<String, Double> percentageFor(SingleSelectQuestion question);
+
+    Map<String, Double> percentageFor(MultiSelectQuestion question);
 }
