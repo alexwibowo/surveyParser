@@ -16,7 +16,7 @@ public final class SingleSelectQuestion extends BaseQuestion<SingleSelectAnswer>
     }
 
     @Override
-    public SingleSelectAnswer createAnswerFrom(final String stringValue) {
+    public SingleSelectAnswer createAnswerFrom(@NotNull final String stringValue) {
         if (StringUtils.isBlank(stringValue)) {
             return nullAnswer();
         } else {

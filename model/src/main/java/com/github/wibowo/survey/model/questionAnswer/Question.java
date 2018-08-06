@@ -12,7 +12,7 @@ public interface Question<T extends Answer> {
 
     Class<T> answerType();
 
-    T createAnswerFrom(String stringValue);
+    T createAnswerFrom(@NotNull String stringValue);
 
     @NotNull T nullAnswer();
 }

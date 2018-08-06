@@ -22,7 +22,7 @@ public final class RatingQuestion extends BaseQuestion<RatingAnswer> {
     }
 
     @Override
-    public RatingAnswer createAnswerFrom(final String stringValue) {
+    public RatingAnswer createAnswerFrom(@NotNull final String stringValue) {
         if (StringUtils.isBlank(stringValue)) {
             return nullAnswer();
         }

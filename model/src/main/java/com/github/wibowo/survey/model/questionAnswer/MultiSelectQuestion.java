@@ -14,7 +14,7 @@ public final class MultiSelectQuestion extends BaseQuestion<MultiSelectAnswer> {
     }
 
     @Override
-    public MultiSelectAnswer createAnswerFrom(final String stringValue) {
+    public MultiSelectAnswer createAnswerFrom(@NotNull final String stringValue) {
         return MultiSelectAnswer.createAnswer(this, stringValue);
     }
 

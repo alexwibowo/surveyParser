@@ -29,7 +29,7 @@ public enum QuestionType {
      * @return QuestionType that matches the given String
      * @throws SurveyException when there is no matching {@link QuestionType#questionTypeAsString}
      */
-    public static QuestionType questionTypeFor(final String stringValue) {
+    static QuestionType questionTypeFor(final String stringValue) {
         Objects.requireNonNull(stringValue);
         final Optional<QuestionType> optionalType = Arrays.stream(values)
                 .filter(type -> type.questionTypeAsString.equalsIgnoreCase(stringValue.trim()))
