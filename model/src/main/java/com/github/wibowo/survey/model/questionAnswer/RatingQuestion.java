@@ -1,7 +1,5 @@
 package com.github.wibowo.survey.model.questionAnswer;
 
-import com.github.wibowo.survey.model.Survey;
-import com.github.wibowo.survey.model.SurveySummary;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

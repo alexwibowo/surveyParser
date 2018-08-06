@@ -24,6 +24,11 @@ public final class EmployeeResponse {
 
     private final @Nullable ZonedDateTime submittedAt;
 
+    /**
+     * Mapping from question to the answer.
+     * The invariant here is that the key (the question) is the same as {@link Answer#question()}
+     * @see #addAnswer(Answer)
+     */
     private final Map<Question, Answer> answers;
 
     private EmployeeResponse(final Survey survey,
@@ -46,13 +51,21 @@ public final class EmployeeResponse {
         return new EmployeeResponse(survey, employee, null);
     }
 
+    /**
+     * Add employee's answer for the survey
+     */
     public EmployeeResponse addAnswer(final @NotNull Answer answer) {
         Objects.requireNonNull(answer);
         answers.put(answer.question(), answer);
         return this;
     }
 
-    public <E extends Answer> E answerFor(final @NotNull Question<E> question) {
+    /**
+     * Find {@link Answer} for a given {@link Question}
+     *
+     * @return {@link Question#nullAnswer()} when we cant find answer for the requested question
+     */
+    public @NotNull <E extends Answer> E answerFor(final @NotNull Question<E> question) {
         Objects.requireNonNull(question);
 
         // we expect the question and the answer are synced. So it is ok to cast here.

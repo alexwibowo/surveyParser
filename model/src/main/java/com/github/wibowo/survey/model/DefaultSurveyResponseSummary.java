@@ -4,15 +4,15 @@ import com.github.wibowo.survey.model.questionAnswer.*;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.ToLongFunction;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public final class DefaultSurveyResponseSummary implements SurveySummary{
+import static java.util.Objects.requireNonNull;
+
+public final class DefaultSurveyResponseSummary implements SurveySummary {
 
     private final Survey survey;
-    private final List<EmployeeResponse> submittedResponses;
+    private final List<EmployeeResponse> employeeResponses;
 
     private final Map<RatingQuestion, Double> ratingAverageByQuestion;
 
@@ -21,9 +21,9 @@ public final class DefaultSurveyResponseSummary implements SurveySummary{
     private long numberOfParticipations;
 
     public DefaultSurveyResponseSummary(final Survey survey,
-                                        final List<EmployeeResponse> submittedResponses) {
-        this.survey = survey;
-        this.submittedResponses = submittedResponses;
+                                        final List<EmployeeResponse> employeeResponses) {
+        this.survey = requireNonNull(survey);
+        this.employeeResponses = requireNonNull(employeeResponses);
         this.ratingAverageByQuestion = new HashMap<>();
     }
 
@@ -31,8 +31,8 @@ public final class DefaultSurveyResponseSummary implements SurveySummary{
         return survey;
     }
 
-    public List<EmployeeResponse> getSubmittedResponses() {
-        return Collections.unmodifiableList(submittedResponses);
+    public List<EmployeeResponse> getEmployeeResponses() {
+        return Collections.unmodifiableList(employeeResponses);
     }
 
     @Override
@@ -65,8 +65,8 @@ public final class DefaultSurveyResponseSummary implements SurveySummary{
 
     @Override
     public Map<String, Double> percentageFor(final SingleSelectQuestion question) {
-        int size = submittedResponses.size();
-        Map<String, Long> collect1 = submittedResponses.stream()
+        int size = employeeResponses.size();
+        Map<String, Long> collect1 = employeeResponses.stream()
                 .map(response -> response.answerFor(question))
                 .collect(Collectors.groupingBy(
                         SingleSelectAnswer::selection,
@@ -82,7 +82,7 @@ public final class DefaultSurveyResponseSummary implements SurveySummary{
     }
 
     public Map<String, Double> percentageFor(final MultiSelectQuestion multiSelectQuestion) {
-        final Map<String, Long> countBySelection = submittedResponses.stream()
+        final Map<String, Long> countBySelection = employeeResponses.stream()
                 .map(response -> response.answerFor(multiSelectQuestion))
                 .flatMap((Function<MultiSelectAnswer, Stream<String>>) multiSelectAnswer -> Arrays.stream(multiSelectAnswer.getSelection()))
                 .collect(Collectors.groupingBy(
