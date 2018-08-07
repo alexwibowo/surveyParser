@@ -9,6 +9,7 @@ import com.github.wibowo.survey.model.questionAnswer.SingleSelectQuestion;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Map;
@@ -18,14 +19,19 @@ import java.util.Map;
  */
 public final class LoggerSurveyResponseSummaryRenderer implements SurveyResponseSummaryRenderer {
     public static final Logger LOGGER = LogManager.getLogger(LoggerSurveyResponseSummaryRenderer.class);
-    private static final ThreadLocal<DecimalFormat> ratingFormat = ThreadLocal.withInitial(() -> new DecimalFormat("0.00"));
+    private static final ThreadLocal<DecimalFormat> ratingFormat = ThreadLocal.withInitial(() -> {
+        final DecimalFormat decimalFormat = new DecimalFormat("0.00");
+        decimalFormat.setRoundingMode(RoundingMode.HALF_EVEN);
+        return decimalFormat;
+    });
+    private static final ThreadLocal<DecimalFormat> integerFormat = ThreadLocal.withInitial(() -> new DecimalFormat("###,###"));
     private static final ThreadLocal<NumberFormat> percentFormat = ThreadLocal.withInitial(DecimalFormat::getPercentInstance);
 
     @Override
     public void render(final Survey survey, final SurveySummary summary) {
         LOGGER.info("=======================================");
         LOGGER.info("Participation percentage : {}", percentFormat.get().format(summary.participationPercentage()));
-        LOGGER.info("Total participation : {}", summary.totalParticipation());
+        LOGGER.info("Total participation : {}", integerFormat.get().format(summary.totalParticipation()));
         LOGGER.info("=======================================");
         for (final Question question : survey.questions()) {
             if (question instanceof RatingQuestion) {
@@ -36,8 +42,6 @@ public final class LoggerSurveyResponseSummaryRenderer implements SurveyResponse
                 reportMultiSelectQuestion(summary, (MultiSelectQuestion) question);
             }
         }
-
-
     }
 
     private void reportMultiSelectQuestion(final SurveySummary summary,
