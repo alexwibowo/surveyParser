@@ -85,6 +85,7 @@ public class ApplicationPerfTest {
         surveyResponseFile.deleteOnExit();
 
         int numEntries = 10_000_000;
+        System.out.println(String.format("Creating survey response file with %,d responses. Please wait, as this might take a while...", numEntries));
         prepareSurveyFiles(surveyFile, surveyResponseFile, numEntries);
 
         System.out.println("I'm ready!");
