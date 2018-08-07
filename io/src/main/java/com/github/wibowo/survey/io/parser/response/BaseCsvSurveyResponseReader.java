@@ -20,6 +20,11 @@ public abstract class BaseCsvSurveyResponseReader implements SurveyResponseReade
     private static final char DELIMITER_CHARACTER = ',';
     private static final char ESCAPE_CHARACTER = '"';
 
+    /** Determines what each column in the response file means */
+    private static final int EMPLOYEE_EMAIL_COLUMN_INDEX = 0;
+    private static final int EMPLOYEE_ID_COLUMN_INDEX = 1;
+    private static final int SUBMITTED_AT_COLUMN_INDEX = 2;
+
     protected final Survey survey;
 
     BaseCsvSurveyResponseReader(final Survey survey) {
@@ -50,9 +55,9 @@ public abstract class BaseCsvSurveyResponseReader implements SurveyResponseReade
                 .setIgnoreEmptyTokens(false)
                 .setEmptyTokenAsNull(false);
         final String[] values = stringTokenizer.getTokenArray();
-        final String email = values[0];
-        final String employeeID = values[1];
-        final String submittedAt = values[2];
+        final String email = values[EMPLOYEE_EMAIL_COLUMN_INDEX];
+        final String employeeID = values[EMPLOYEE_ID_COLUMN_INDEX];
+        final String submittedAt = values[SUBMITTED_AT_COLUMN_INDEX];
 
         if (values.length > 3) {
             onNewResponse(survey, email, employeeID, submittedAt);

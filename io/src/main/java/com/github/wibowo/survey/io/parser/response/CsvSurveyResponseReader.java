@@ -26,6 +26,11 @@ public final class CsvSurveyResponseReader extends BaseCsvSurveyResponseReader {
     final DateTimeFormatter submittedTimeParser = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
     private List<EmployeeResponse> employeeResponses;
+
+    /**
+     * Current employee response being processed
+     * i.e. as a result of {@link #onNewResponse(Survey, String, String, String)} callback
+     */
     private EmployeeResponse employeeResponse;
 
     public CsvSurveyResponseReader(final Survey survey) {

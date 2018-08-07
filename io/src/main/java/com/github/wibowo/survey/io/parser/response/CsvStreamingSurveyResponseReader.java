@@ -53,10 +53,12 @@ public final class CsvStreamingSurveyResponseReader extends BaseCsvSurveyRespons
         private final Survey survey;
 
         private UnsafeSurveyResponse(final Survey survey) {
-            final List<Question> collect = StreamSupport.stream(survey.questions().spliterator(), false).collect(Collectors.toList());
+            final List<Question> questions = StreamSupport.stream(survey.questions().spliterator(), false).collect(Collectors.toList());
             this.survey = survey;
-            totalRatingForQuestions = new int[collect.size()];
-            numberParticipationsByQuestion = new int[collect.size()];
+            totalRatingForQuestions = new int[questions.size()];
+            numberParticipationsByQuestion = new int[questions.size()];
+
+            // we initialise all responses with the value that indicate that employee has not reponded (i.e. NULL rating)
             Arrays.fill(totalRatingForQuestions, NULL_RATING_RESPONSE);
             Arrays.fill(numberParticipationsByQuestion, NULL_RATING_RESPONSE);
         }
