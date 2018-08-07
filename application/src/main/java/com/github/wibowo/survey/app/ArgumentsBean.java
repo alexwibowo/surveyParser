@@ -11,7 +11,7 @@ public final class ArgumentsBean implements Arguments{
     private String responseFile;
 
     @Option(name = "--enableStreamingMode", usage = "Enable streaming mode")
-    private boolean enableStreamingMode = true;
+    private boolean enableStreamingMode = false;
 
     @Override
     public String getQuestionFile() {

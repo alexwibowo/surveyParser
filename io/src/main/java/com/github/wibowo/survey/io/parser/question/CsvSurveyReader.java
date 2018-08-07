@@ -94,8 +94,7 @@ public final class CsvSurveyReader implements SurveyReader<InputStream> {
         }
 
         private void readQuestion(final String[] columnValues) {
-            final Metadata metadata = this.metadata;
-            survey.addQuestion(metadata.parseQuestionString(columnValues));
+            survey.addQuestion(this.metadata.parseQuestionString(columnValues));
         }
     }
 
@@ -116,6 +115,8 @@ public final class CsvSurveyReader implements SurveyReader<InputStream> {
          */
         Text("text");
 
+        public static final ColumnType[] SUPPORTED_VALUES = ColumnType.values();
+
         private String key;
 
         ColumnType(final String text) {
@@ -123,7 +124,7 @@ public final class CsvSurveyReader implements SurveyReader<InputStream> {
         }
 
         static ColumnType find(final String keyName) {
-            for (ColumnType metadataKey : ColumnType.values()) {
+            for (final ColumnType metadataKey : SUPPORTED_VALUES) {
                 if (Objects.equals(metadataKey.key, keyName)) {
                     return metadataKey;
                 }
@@ -137,6 +138,11 @@ public final class CsvSurveyReader implements SurveyReader<InputStream> {
      * In particular, what is the {@link ColumnType} value of a column
      */
     static class Metadata {
+        /**
+         * Defines what each column means.
+         * E.g.: if the content is [{@link ColumnType#Theme},{@link ColumnType#Type},{@link ColumnType#Text}]
+         * then the first column is {@link ColumnType#Theme}, the second column is {@link ColumnType#Type}, and so on.
+         */
         private final ColumnType[] columnTypes;
 
         Metadata(final String[] columnTypesAsString) {

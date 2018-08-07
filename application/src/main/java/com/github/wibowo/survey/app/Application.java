@@ -24,7 +24,7 @@ public final class Application {
 
     private final Arguments arguments;
 
-    public Application(final Arguments arguments) {
+    Application(final Arguments arguments) {
         this.arguments = Objects.requireNonNull(arguments);
     }
 
@@ -55,17 +55,19 @@ public final class Application {
         }
     }
 
-    public void doWork() throws FileNotFoundException {
+    void doWork() throws FileNotFoundException {
         final CsvSurveyReader csvSurveyReader = new CsvSurveyReader();
         final Survey survey = csvSurveyReader.readFrom(new FileInputStream(new File(arguments.getQuestionFile())));
 
         final SurveySummary surveySummary;
         if (arguments.isEnableStreamingMode()) {
+            LOGGER.info("Running application in streaming mode");
             final CsvStreamingSurveyResponseReader streamingReader = new CsvStreamingSurveyResponseReader(survey);
             surveySummary = streamingReader.process(new FileInputStream(new File(arguments.getResponseFile()))).getSummary();
         } else {
-            final CsvSurveyResponseReader csvreader = new CsvSurveyResponseReader(survey);
-            surveySummary = csvreader.process(new FileInputStream(new File(arguments.getResponseFile()))).getSummary();
+            LOGGER.info("Running application in non-streaming mode");
+            final CsvSurveyResponseReader csvReader = new CsvSurveyResponseReader(survey);
+            surveySummary = csvReader.process(new FileInputStream(new File(arguments.getResponseFile()))).getSummary();
         }
 
         new LoggerSurveyResponseSummaryRenderer().render(survey, surveySummary);
